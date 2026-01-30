@@ -1,0 +1,12 @@
+node_modules/
+.env
+*.lock
+dist/
+build/
+.DS_Store
+backend/prisma/dev.db
+backend/prisma/dev.db-journal
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local

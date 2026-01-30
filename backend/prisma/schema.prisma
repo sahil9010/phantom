@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  password  String
+  name      String
+  role      String    @default("contributor") // admin, project-manager, contributor
+  projects  Member[]
+  owned     Project[] @relation("ProjectOwner")
+  issuesAssigned Issue[] @relation("Assignee")
+  issuesReported Issue[] @relation("Reporter")
+  comments  Comment[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Project {
+  id          String   @id @default(uuid())
+  name        String
+  key         String   @unique
+  description String?
+  ownerId     String
+  owner       User     @relation("ProjectOwner", fields: [ownerId], references: [id])
+  members     Member[]
+  issues      Issue[]
+  sprints     Sprint[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Member {
+  id        String   @id @default(uuid())
+  userId    String
+  projectId String
+  role      String   @default("contributor")
+  user      User     @relation(fields: [userId], references: [id])
+  project   Project  @relation(fields: [projectId], references: [id])
+
+  @@unique([userId, projectId])
+}
+
+model Issue {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  type        String   @default("task") // task, bug, story
+  status      String   @default("todo") // todo, in_progress, review, done
+  priority    String   @default("medium") // low, medium, high, critical
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id])
+  sprintId    String?
+  sprint      Sprint?  @relation(fields: [sprintId], references: [id])
+  assigneeId  String?
+  assignee    User?    @relation("Assignee", fields: [assigneeId], references: [id])
+  reporterId  String
+  reporter    User     @relation("Reporter", fields: [reporterId], references: [id])
+  labels      String   @default("[]") // JSON stringified array
+  dueDate     DateTime?
+  comments    Comment[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Sprint {
+  id        String   @id @default(uuid())
+  name      String
+  startDate DateTime?
+  endDate   DateTime?
+  status    String   @default("planned") // planned, active, completed
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id])
+  issues    Issue[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  issueId   String
+  issue     Issue    @relation(fields: [issueId], references: [id])
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
