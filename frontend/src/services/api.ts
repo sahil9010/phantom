@@ -1,16 +1,7 @@
 import axios from 'axios';
 
-const isProduction = import.meta.env.PROD;
-let baseURL = import.meta.env.VITE_API_URL || (isProduction
-    ? 'https://phantom-backend-qmci.onrender.com/api/'
-    : 'http://192.168.31.59:5000/api/');
-
-if (!baseURL.endsWith('/')) {
-    baseURL += '/';
-}
-
 const api = axios.create({
-    baseURL,
+    baseURL: import.meta.env.VITE_API_URL || 'https://phantom-backend-qmci.onrender.com/api/',
 });
 
 api.interceptors.request.use((config) => {
