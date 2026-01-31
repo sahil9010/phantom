@@ -23,6 +23,7 @@ export const createProject = async (req: AuthRequest, res: Response) => {
         });
         res.status(201).json(project);
     } catch (error) {
+        console.error('Project creation error:', error);
         res.status(500).json({ error: 'Failed to create project' });
     }
 };
@@ -61,5 +62,87 @@ export const getProjectDetails = async (req: AuthRequest, res: Response) => {
         res.json(project);
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch project details' });
+    }
+};
+
+export const addMember = async (req: AuthRequest, res: Response) => {
+    const { id: projectId } = req.params;
+    const { userId, role } = req.body;
+
+    try {
+        const member = await prisma.member.create({
+            data: {
+                projectId,
+                userId,
+                role: role || 'contributor'
+            },
+            include: {
+                user: { select: { id: true, name: true, email: true, role: true } }
+            }
+        });
+        res.status(201).json(member);
+    } catch (error) {
+        console.error('Add member error:', error);
+        res.status(500).json({ error: 'Failed to add member' });
+    }
+};
+
+export const removeMember = async (req: AuthRequest, res: Response) => {
+    const { id: projectId, userId } = req.params;
+
+    try {
+        await prisma.member.delete({
+            where: {
+                userId_projectId: {
+                    userId,
+                    projectId
+                }
+            }
+        });
+        res.status(204).send();
+    } catch (error) {
+        console.error('Remove member error:', error);
+        res.status(500).json({ error: 'Failed to remove member' });
+    }
+};
+
+export const deleteProject = async (req: AuthRequest, res: Response) => {
+    const { id } = req.params;
+    const userRole = req.user.role;
+
+    if (userRole !== 'admin') {
+        return res.status(403).json({ error: 'Only admins can delete projects' });
+    }
+
+    try {
+        await prisma.$transaction(async (tx) => {
+            // 1. Delete invitations
+            await tx.invitation.deleteMany({ where: { projectId: id } });
+
+            // 2. Find issues to delete comments
+            const issues = await tx.issue.findMany({ where: { projectId: id }, select: { id: true } });
+            const issueIds = issues.map(i => i.id);
+
+            if (issueIds.length > 0) {
+                await tx.comment.deleteMany({ where: { issueId: { in: issueIds } } });
+            }
+
+            // 3. Delete issues
+            await tx.issue.deleteMany({ where: { projectId: id } });
+
+            // 4. Delete sprints
+            await tx.sprint.deleteMany({ where: { projectId: id } });
+
+            // 5. Delete members
+            await tx.member.deleteMany({ where: { projectId: id } });
+
+            // 6. Delete project
+            await tx.project.delete({ where: { id } });
+        });
+
+        res.status(204).send();
+    } catch (error) {
+        console.error('Project deletion error:', error);
+        res.status(500).json({ error: 'Failed to delete project' });
     }
 };

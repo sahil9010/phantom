@@ -4,6 +4,10 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth';
 import projectRoutes from './routes/project';
 import issueRoutes from './routes/issue';
+import commentRoutes from './routes/comment';
+import userRoutes from './routes/user';
+import invitationRoutes from './routes/invitation';
+import settingsRoutes from './routes/settings';
 
 dotenv.config();
 
@@ -16,6 +20,10 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/issues', issueRoutes);
+app.use('/api/comments', commentRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/invitations', invitationRoutes);
+app.use('/api/settings', settingsRoutes);
 
 app.get('/health', (req, res) => {
     res.json({ status: 'ok' });

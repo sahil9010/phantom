@@ -4,6 +4,7 @@ import {
     closestCorners,
     KeyboardSensor,
     PointerSensor,
+    TouchSensor,
     useSensor,
     useSensors,
     DragEndEvent,
@@ -27,41 +28,71 @@ const COLUMNS = [
 
 interface KanbanBoardProps {
     issues: any[];
+    members: any[];
     setIssues: React.Dispatch<React.SetStateAction<any[]>>;
     projectId: string;
+    projectKey: string;
+    onSelectIssue: (id: string) => void;
+    onStartCreateIssue: (status: string) => void;
+    onUpdate: () => void;
 }
 
-const KanbanBoard: React.FC<KanbanBoardProps> = ({ issues, setIssues, projectId }) => {
+const KanbanBoard: React.FC<KanbanBoardProps> = ({ issues, members, setIssues, projectId, projectKey, onSelectIssue, onStartCreateIssue, onUpdate }) => {
     const sensors = useSensors(
-        useSensor(PointerSensor),
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 5,
+            },
+        }),
+        useSensor(TouchSensor, {
+            activationConstraint: {
+                delay: 250,
+                tolerance: 5,
+            },
+        }),
         useSensor(KeyboardSensor, {
             coordinateGetter: sortableKeyboardCoordinates,
         })
     );
 
+    const handleUpdateAssignee = async (issueId: string, assigneeId: string | null) => {
+        try {
+            await api.patch(`/issues/${issueId}`, { assigneeId });
+            onUpdate();
+        } catch (err) {
+            console.error('Failed to update assignee');
+        }
+    };
+
     const onDragEnd = async (event: DragEndEvent) => {
         const { active, over } = event;
-
         if (!over) return;
 
-        const issueId = active.id as string;
+        const activeId = active.id as string;
         const overId = over.id as string;
 
-        // Check if we dropped on a different column
-        if (COLUMNS.map(c => c.id).includes(overId)) {
-            const issue = issues.find(i => i.id === issueId);
-            if (issue && issue.status !== overId) {
-                const updatedIssues = issues.map(i =>
-                    i.id === issueId ? { ...i, status: overId } : i
-                );
-                setIssues(updatedIssues);
+        // Find the destination column (overId could be a column ID or an issue ID)
+        let destinationColumnId = overId;
+        if (!COLUMNS.map(c => c.id).includes(overId)) {
+            const overIssue = issues.find(i => i.id === overId);
+            if (overIssue) {
+                destinationColumnId = overIssue.status;
+            }
+        }
 
-                try {
-                    await api.patch(`/issues/${issueId}`, { status: overId });
-                } catch (err) {
-                    console.error('Failed to update issue status');
-                    setIssues(issues); // Rollback
-                }
+        const issue = issues.find(i => i.id === activeId);
+        if (issue && destinationColumnId && issue.status !== destinationColumnId) {
+            const updatedIssues = issues.map(i =>
+                i.id === activeId ? { ...i, status: destinationColumnId } : i
+            );
+            setIssues(updatedIssues);
+
+            try {
+                await api.patch(`/issues/${activeId}`, { status: destinationColumnId });
+                onUpdate();
+            } catch (err) {
+                console.error('Failed to update issue status');
+                setIssues(issues); // Rollback
             }
         }
     };
@@ -80,6 +111,12 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ issues, setIssues, projectId 
                             id={col.id}
                             title={col.title}
                             issues={issues.filter(i => i.status === col.id)}
+                            members={members}
+                            projectId={projectId}
+                            setIssues={setIssues}
+                            onSelectIssue={onSelectIssue}
+                            onStartCreateIssue={onStartCreateIssue}
+                            onUpdateAssignee={handleUpdateAssignee}
                         />
                     ))}
                 </div>

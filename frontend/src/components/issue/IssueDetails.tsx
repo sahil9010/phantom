@@ -5,13 +5,15 @@ import './IssueDetails.css';
 
 interface IssueDetailsProps {
     issueId: string;
+    members: any[];
     onClose: () => void;
     onUpdate: () => void;
 }
 
-const IssueDetails: React.FC<IssueDetailsProps> = ({ issueId, onClose, onUpdate }) => {
+const IssueDetails: React.FC<IssueDetailsProps> = ({ issueId, members, onClose, onUpdate }) => {
     const [issue, setIssue] = useState<any>(null);
     const [comment, setComment] = useState('');
+    const [newAttachmentUrl, setNewAttachmentUrl] = useState('');
 
     useEffect(() => {
         const fetchIssue = async () => {
@@ -35,11 +37,44 @@ const IssueDetails: React.FC<IssueDetailsProps> = ({ issueId, onClose, onUpdate 
         }
     };
 
+    const handleAddComment = async () => {
+        if (!comment.trim()) return;
+
+        try {
+            const { data } = await api.post('/comments', {
+                content: comment,
+                issueId
+            });
+            setIssue({
+                ...issue,
+                comments: [data, ...(issue.comments || [])]
+            });
+            setComment('');
+        } catch (err) {
+            console.error('Failed to post comment');
+        }
+    };
+
+    const handleAddAttachment = async () => {
+        if (!newAttachmentUrl.trim()) return;
+
+        const currentAttachments = JSON.parse(issue.attachments || '[]');
+        const updatedAttachments = [...currentAttachments, newAttachmentUrl];
+
+        try {
+            await api.patch(`/issues/${issueId}`, { attachments: JSON.stringify(updatedAttachments) });
+            setIssue({ ...issue, attachments: JSON.stringify(updatedAttachments) });
+            setNewAttachmentUrl('');
+        } catch (err) {
+            console.error('Failed to add attachment');
+        }
+    };
+
     if (!issue) return null;
 
     return (
         <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <div className="modal-content landscape-modal" onClick={e => e.stopPropagation()}>
                 <header className="modal-header">
                     <span className="issue-key">ISSUE-{issue.id.slice(0, 4).toUpperCase()}</span>
                     <button className="close-btn" onClick={onClose}><X size={20} /></button>
@@ -61,6 +96,27 @@ const IssueDetails: React.FC<IssueDetailsProps> = ({ issueId, onClose, onUpdate 
                             />
                         </div>
 
+                        <div className="attachments-section">
+                            <label>Attachments & Images</label>
+                            <div className="attachment-grid">
+                                {JSON.parse(issue.attachments || '[]').map((url: string, idx: number) => (
+                                    <div key={idx} className="attachment-preview">
+                                        <img src={url} alt="attachment" onClick={() => window.open(url, '_blank')} />
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="attachment-input">
+                                <input
+                                    type="text"
+                                    placeholder="Paste image URL..."
+                                    value={newAttachmentUrl}
+                                    onChange={(e) => setNewAttachmentUrl(e.target.value)}
+                                    onKeyDown={(e) => e.key === 'Enter' && handleAddAttachment()}
+                                />
+                                <button className="add-btn" onClick={handleAddAttachment}>Add</button>
+                            </div>
+                        </div>
+
                         <div className="comments-section">
                             <h3>Comments</h3>
                             <div className="comment-input">
@@ -69,8 +125,23 @@ const IssueDetails: React.FC<IssueDetailsProps> = ({ issueId, onClose, onUpdate 
                                     placeholder="Add a comment..."
                                     value={comment}
                                     onChange={(e) => setComment(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') handleAddComment();
+                                    }}
                                 />
-                                <button onClick={() => { }}><Send size={16} /></button>
+                                <button onClick={handleAddComment}><Send size={16} /></button>
+                            </div>
+
+                            <div className="comments-list">
+                                {issue.comments?.map((c: any) => (
+                                    <div key={c.id} className="comment-item">
+                                        <div className="comment-header">
+                                            <strong>{c.author?.name}</strong>
+                                            <span>{new Date(c.createdAt).toLocaleDateString()}</span>
+                                        </div>
+                                        <p>{c.content}</p>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </div>
@@ -98,7 +169,22 @@ const IssueDetails: React.FC<IssueDetailsProps> = ({ issueId, onClose, onUpdate 
 
                         <div className="meta-info">
                             <p><span>Reporter</span> {issue.reporter?.name}</p>
-                            <p><span>Assignee</span> {issue.assignee?.name || 'Unassigned'}</p>
+                            <div className="field-group" style={{ marginTop: '1rem' }}>
+                                <label>Assignee</label>
+                                <select
+                                    className="premium-input-sm"
+                                    style={{ width: '100%', background: 'var(--surface-raised)', color: 'var(--text)' }}
+                                    value={issue.assigneeId || ''}
+                                    onChange={(e) => handleUpdate('assigneeId', e.target.value || null)}
+                                >
+                                    <option value="">Unassigned</option>
+                                    {members.map((m: any) => (
+                                        <option key={m.user.id} value={m.user.id}>
+                                            {m.user.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
                     </aside>
                 </div>

@@ -16,13 +16,27 @@ model User {
   password  String
   name      String
   role      String    @default("contributor") // admin, project-manager, contributor
+  bio       String?
+  avatarUrl String?
   projects  Member[]
   owned     Project[] @relation("ProjectOwner")
   issuesAssigned Issue[] @relation("Assignee")
   issuesReported Issue[] @relation("Reporter")
   comments  Comment[]
+  invitations Invitation[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+  settings  UserSetting?
+}
+
+model UserSetting {
+  id                 String   @id @default(uuid())
+  userId             String   @unique
+  user               User     @relation(fields: [userId], references: [id])
+  theme              String   @default("system") // light, dark, system
+  emailNotifications Boolean  @default(true)
+  compactMode        Boolean  @default(false)
+  updatedAt          DateTime @updatedAt
 }
 
 model Project {
@@ -35,8 +49,10 @@ model Project {
   members     Member[]
   issues      Issue[]
   sprints     Sprint[]
+  invitations Invitation[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  issueCount  Int      @default(0)
 }
 
 model Member {
@@ -57,6 +73,7 @@ model Issue {
   type        String   @default("task") // task, bug, story
   status      String   @default("todo") // todo, in_progress, review, done
   priority    String   @default("medium") // low, medium, high, critical
+  serialNumber Int     @default(0)
   projectId   String
   project     Project  @relation(fields: [projectId], references: [id])
   sprintId    String?
@@ -66,6 +83,7 @@ model Issue {
   reporterId  String
   reporter    User     @relation("Reporter", fields: [reporterId], references: [id])
   labels      String   @default("[]") // JSON stringified array
+  attachments String   @default("[]") // JSON stringified array of URLs
   dueDate     DateTime?
   comments    Comment[]
   createdAt   DateTime @default(now())
@@ -94,4 +112,19 @@ model Comment {
   author    User     @relation(fields: [authorId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Invitation {
+  id        String   @id @default(uuid())
+  email     String
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id])
+  token     String   @unique
+  status    String   @default("PENDING") // PENDING, ACCEPTED, EXPIRED
+  inviterId String
+  inviter   User     @relation(fields: [inviterId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([email, projectId])
 }

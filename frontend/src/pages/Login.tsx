@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import api from '../services/api';
 import { useAuthStore } from '../store/authStore';
 import './Login.css';
@@ -55,7 +55,7 @@ const Login: React.FC = () => {
                 <button type="submit" className="login-btn">Login</button>
 
                 <div className="auth-footer">
-                    Don't have an account? <a href="/register">Sign up</a>
+                    Don't have an account? <Link to="/register">Sign up</Link>
                 </div>
             </form>
         </div>

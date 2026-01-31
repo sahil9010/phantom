@@ -10,23 +10,41 @@ export const createIssue = async (req: AuthRequest, res: Response) => {
     const reporterId = req.user.id;
 
     try {
-        const issue = await prisma.issue.create({
-            data: {
-                title,
-                description,
-                type,
-                priority,
-                status,
-                projectId,
-                sprintId,
-                assigneeId,
-                reporterId,
-                dueDate: dueDate ? new Date(dueDate) : null,
-                labels: JSON.stringify(labels || []),
-            }
+        const result = await prisma.$transaction(async (tx) => {
+            // 1. Get and increment project issue count
+            const project = await tx.project.update({
+                where: { id: projectId },
+                data: { issueCount: { increment: 1 } },
+                select: { issueCount: true }
+            });
+
+            // 2. Create issue with the new serial number
+            const newIssue = await tx.issue.create({
+                data: {
+                    title,
+                    description,
+                    type,
+                    priority,
+                    status,
+                    projectId,
+                    sprintId,
+                    assigneeId,
+                    reporterId,
+                    serialNumber: project.issueCount,
+                    dueDate: dueDate ? new Date(dueDate) : null,
+                    labels: JSON.stringify(labels || []),
+                },
+                include: {
+                    project: { select: { key: true } },
+                    assignee: { select: { id: true, name: true } }
+                }
+            });
+            return newIssue;
         });
-        res.status(201).json(issue);
+
+        res.status(201).json(result);
     } catch (error) {
+        console.error('Issue creation error:', error);
         res.status(500).json({ error: 'Failed to create issue' });
     }
 };
@@ -57,7 +75,8 @@ export const getProjectIssues = async (req: Request, res: Response) => {
             where: { projectId },
             include: {
                 assignee: { select: { id: true, name: true } },
-                reporter: { select: { id: true, name: true } }
+                reporter: { select: { id: true, name: true } },
+                project: { select: { key: true } }
             }
         });
         res.json(issues);
