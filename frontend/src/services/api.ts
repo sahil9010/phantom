@@ -1,7 +1,21 @@
 import axios from 'axios';
 
+// Bulletproof baseURL logic:
+// Ensure the request ALWAYS goes to the /api/ prefix, even if VITE_API_URL is missing it.
+let rawBaseURL = import.meta.env.VITE_API_URL || 'https://phantom-backend-qmci.onrender.com/api/';
+
+let finalBaseURL = rawBaseURL.trim();
+if (!finalBaseURL.includes('/api')) {
+    finalBaseURL = finalBaseURL.replace(/\/$/, '') + '/api/';
+}
+if (!finalBaseURL.endsWith('/')) {
+    finalBaseURL += '/';
+}
+
+console.log('API Initialized with baseURL:', finalBaseURL);
+
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'https://phantom-backend-qmci.onrender.com/api/',
+    baseURL: finalBaseURL,
 });
 
 api.interceptors.request.use((config) => {
