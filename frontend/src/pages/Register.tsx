@@ -20,7 +20,7 @@ const Register: React.FC = () => {
         setError('');
 
         try {
-            const { data } = await api.post('/auth/register', { name, email, password });
+            const { data } = await api.post('auth/register', { name, email, password });
             setUser(data.user, data.token);
             navigate('/dashboard');
         } catch (err: any) {

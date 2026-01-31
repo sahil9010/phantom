@@ -24,7 +24,7 @@ const CreateIssueModal: React.FC<CreateIssueModalProps> = ({ projectId, status, 
 
         setLoading(true);
         try {
-            const { data } = await api.post('/issues', {
+            const { data } = await api.post('issues', {
                 title,
                 description,
                 projectId,

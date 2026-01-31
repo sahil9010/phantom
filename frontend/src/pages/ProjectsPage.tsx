@@ -14,7 +14,7 @@ const ProjectsPage: React.FC = () => {
 
     const fetchProjects = async () => {
         try {
-            const { data } = await api.get('/projects');
+            const { data } = await api.get('projects');
             setProjects(data);
         } catch (err) {
             console.error('Failed to fetch projects');

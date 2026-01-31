@@ -14,7 +14,7 @@ const ProfilePage: React.FC = () => {
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const { data } = await api.get('/users/profile');
+                const { data } = await api.get('users/profile');
                 setProfile(data);
                 setName(data.name);
                 setBio(data.bio || '');
@@ -33,7 +33,7 @@ const ProfilePage: React.FC = () => {
         setSaving(true);
         setMessage(null);
         try {
-            const { data } = await api.put('/users/profile', { name, bio, avatarUrl });
+            const { data } = await api.put('users/profile', { name, bio, avatarUrl });
             setProfile(data);
             setMessage({ type: 'success', text: 'Profile updated successfully!' });
             setTimeout(() => setMessage(null), 3000);

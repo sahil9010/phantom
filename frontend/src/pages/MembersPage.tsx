@@ -10,7 +10,7 @@ const MembersPage: React.FC = () => {
 
     const fetchUsers = async () => {
         try {
-            const { data } = await api.get('/users');
+            const { data } = await api.get('users');
             setUsers(data);
         } catch (err) {
             console.error('Failed to fetch users');

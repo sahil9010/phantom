@@ -62,7 +62,7 @@ const AddMemberModal: React.FC<AddMemberModalProps> = ({ projectId, existingMemb
         setInviteMessage(null);
         setInviteLink('');
         try {
-            const { data } = await api.post('/invitations', { email: inviteEmail, projectId });
+            const { data } = await api.post('invitations', { email: inviteEmail, projectId });
             setInviteMessage({ type: 'success', text: `Invitation sent to ${inviteEmail}!` });
             setInviteLink(data.link);
             setInviteEmail('');

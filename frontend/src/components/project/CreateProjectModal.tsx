@@ -21,7 +21,7 @@ const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ onClose, onCrea
         setLoading(true);
         setError(null);
         try {
-            await api.post('/projects', { name, key, description });
+            await api.post('projects', { name, key, description });
             onCreated();
             onClose();
         } catch (err: any) {

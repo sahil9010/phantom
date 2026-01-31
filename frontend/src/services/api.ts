@@ -3,8 +3,8 @@ import axios from 'axios';
 const isProduction = import.meta.env.PROD;
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || (isProduction
-        ? 'https://phantom-backend-qmci.onrender.com/api'
-        : 'http://localhost:5000/api'),
+        ? 'https://phantom-backend-qmci.onrender.com/api/'
+        : 'http://localhost:5000/api/'),
 });
 
 api.interceptors.request.use((config) => {

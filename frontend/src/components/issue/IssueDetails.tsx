@@ -41,7 +41,7 @@ const IssueDetails: React.FC<IssueDetailsProps> = ({ issueId, members, onClose, 
         if (!comment.trim()) return;
 
         try {
-            const { data } = await api.post('/comments', {
+            const { data } = await api.post('comments', {
                 content: comment,
                 issueId
             });

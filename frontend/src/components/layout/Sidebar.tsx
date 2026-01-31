@@ -14,7 +14,7 @@ const Sidebar: React.FC = () => {
     useEffect(() => {
         const fetchProjects = async () => {
             try {
-                const { data } = await api.get('/projects');
+                const { data } = await api.get('projects');
                 if (Array.isArray(data)) {
                     setProjects(data);
                 }
