@@ -20,6 +20,7 @@ export const register = async (req: Request, res: Response) => {
         const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET || 'secret');
         res.status(201).json({ user: { id: user.id, email: user.email, name: user.name, role: user.role }, token });
     } catch (error) {
+        console.error('Registration error:', error);
         res.status(500).json({ error: 'Unexpected error during registration' });
     }
 };
@@ -36,6 +37,7 @@ export const login = async (req: Request, res: Response) => {
         const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET || 'secret');
         res.json({ user: { id: user.id, email: user.email, name: user.name, role: user.role }, token });
     } catch (error) {
+        console.error('Login error:', error);
         res.status(500).json({ error: 'Unexpected error during login' });
     }
 };

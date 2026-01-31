@@ -14,9 +14,36 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+// ✅ CORS setup for local dev + Vercel frontend
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174', // current local port
+  'https://phantom-theta-gray.vercel.app',
+  process.env.FRONTEND_URL
+].filter(Boolean) as string[];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+
+    const isAllowed = allowedOrigins.some(allowed =>
+      origin === allowed || origin.startsWith(allowed)
+    );
+
+    if (isAllowed || origin.includes('192.168.')) {
+      return callback(null, true);
+    } else {
+      console.log('CORS blocked origin:', origin);
+      return callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
+
 app.use(express.json());
 
+// ✅ API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/issues', issueRoutes);
@@ -25,12 +52,18 @@ app.use('/api/users', userRoutes);
 app.use('/api/invitations', invitationRoutes);
 app.use('/api/settings', settingsRoutes);
 
+// ✅ Health check
 app.get('/health', (req, res) => {
-    res.json({ status: 'ok' });
+  res.json({ status: 'ok' });
+});
+
+// ✅ Root route
+app.get('/', (req, res) => {
+  res.send('Backend is running 🚀');
 });
 
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
 
 export default app;
