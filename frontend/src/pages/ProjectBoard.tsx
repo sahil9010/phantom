@@ -7,6 +7,7 @@ import IssueDetails from '../components/issue/IssueDetails';
 import CreateIssueModal from '../components/issue/CreateIssueModal';
 import AddMemberModal from '../components/project/AddMemberModal';
 import './ProjectBoard.css';
+import socket from '../services/socket';
 
 const ProjectBoard: React.FC = () => {
     const { id } = useParams();
@@ -38,6 +39,19 @@ const ProjectBoard: React.FC = () => {
         };
         fetchProject();
         fetchIssues();
+
+        socket.emit('joinProject', id);
+
+        socket.on('issueCreated', (newIssue) => {
+            setIssues(prev => {
+                if (prev.find(i => i.id === newIssue.id)) return prev;
+                return [...prev, newIssue];
+            });
+        });
+
+        return () => {
+            socket.off('issueCreated');
+        };
     }, [id]);
 
     if (!project) return <div>Loading...</div>;
@@ -64,6 +78,10 @@ const ProjectBoard: React.FC = () => {
                     <button className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem' }} onClick={() => navigate(`/projects/${id}/team`)}>
                         <Users size={18} />
                         <span>Team</span>
+                    </button>
+                    <button className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem' }} onClick={() => setIsManagingMembers(true)}>
+                        <UserPlus size={18} />
+                        <span>Invite</span>
                     </button>
                     <button className="icon-btn"><MoreHorizontal size={18} /></button>
                 </div>

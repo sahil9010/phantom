@@ -10,6 +10,7 @@ import Register from './pages/Register';
 import TeamPage from './pages/TeamPage';
 import ProjectsPage from './pages/ProjectsPage';
 import MembersPage from './pages/MembersPage';
+import RolesPage from './pages/RolesPage';
 
 function App() {
     const token = useAuthStore((state) => state.token);
@@ -23,6 +24,7 @@ function App() {
                 <Route element={token ? <AppLayout /> : <Navigate to="/login" />}>
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/members" element={<MembersPage />} />
+                    <Route path="/roles" element={<RolesPage />} />
                     <Route path="/projects" element={<ProjectsPage />} />
                     <Route path="/projects/:id" element={<ProjectBoard />} />
                     <Route path="/projects/:id/team" element={<TeamPage />} />

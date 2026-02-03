@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import { createServer } from 'http';
+import { initSocket } from './services/socket';
 import authRoutes from './routes/auth';
 import projectRoutes from './routes/project';
 import issueRoutes from './routes/issue';
@@ -8,11 +10,16 @@ import commentRoutes from './routes/comment';
 import userRoutes from './routes/user';
 import invitationRoutes from './routes/invitation';
 import settingsRoutes from './routes/settings';
+import roleRoutes from './routes/role';
 
 dotenv.config();
 
 const app = express();
+const server = createServer(app);
 const PORT = process.env.PORT || 5000;
+
+// Initialize Socket.io
+initSocket(server);
 
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.url}`);
@@ -56,6 +63,7 @@ app.use('/api/comments', commentRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/invitations', invitationRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/roles', roleRoutes);
 
 // ✅ Health check
 app.get('/health', (req, res) => {
@@ -67,7 +75,7 @@ app.get('/', (req, res) => {
   res.send('Backend is running 🚀');
 });
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 

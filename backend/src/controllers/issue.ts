@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import prisma from '../config/db';
+import { emitToProject } from '../services/socket';
 
 interface AuthRequest extends Request {
     user?: any;
@@ -42,6 +43,7 @@ export const createIssue = async (req: AuthRequest, res: Response) => {
             return newIssue;
         });
 
+        emitToProject(projectId, 'issueCreated', result);
         res.status(201).json(result);
     } catch (error) {
         console.error('Issue creation error:', error);

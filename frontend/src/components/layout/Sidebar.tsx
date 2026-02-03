@@ -1,15 +1,28 @@
 import React, { useEffect, useState } from 'react';
-import { NavLink, useParams } from 'react-router-dom';
-import { LayoutDashboard, Trello, ClipboardList, Settings, Users, ChevronDown, ChevronRight } from 'lucide-react';
+import { NavLink, useParams, useNavigate } from 'react-router-dom';
+import { LayoutDashboard, Trello, ClipboardList, Settings, Users, ChevronDown, ChevronRight, Shield, LogOut } from 'lucide-react';
 import api from '../../services/api';
 import SettingsModal from '../settings/SettingsModal';
 import './Sidebar.css';
+import { useAuthStore } from '../../store/authStore';
 
-const Sidebar: React.FC = () => {
+interface SidebarProps {
+    isOpen?: boolean;
+    onClose?: () => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     const { id: projectId } = useParams();
     const [projects, setProjects] = useState<any[]>([]);
     const [isProjectsExpanded, setIsProjectsExpanded] = useState(false);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const { user, logout } = useAuthStore();
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    };
 
     useEffect(() => {
         const fetchProjects = async () => {
@@ -28,7 +41,7 @@ const Sidebar: React.FC = () => {
     const toggleProjects = () => setIsProjectsExpanded(!isProjectsExpanded);
 
     return (
-        <aside className="sidebar">
+        <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
             <div className="sidebar-logo">
                 <Trello size={28} color="var(--primary)" />
                 <span>Phantom Projects</span>
@@ -65,10 +78,17 @@ const Sidebar: React.FC = () => {
                     ))}
                 </div>
 
-                <NavLink to="/members" className={({ isActive }) => isActive ? 'active' : ''}>
+                <NavLink to="/members" className={({ isActive }) => isActive ? 'active' : ''} onClick={onClose}>
                     <Users size={20} />
                     <span>Members</span>
                 </NavLink>
+
+                {user?.role === 'admin' && (
+                    <NavLink to="/roles" className={({ isActive }) => isActive ? 'active' : ''} onClick={onClose}>
+                        <Shield size={20} />
+                        <span>Roles</span>
+                    </NavLink>
+                )}
 
                 <div className="nav-section-title">Project Settings</div>
                 <NavLink
@@ -87,13 +107,24 @@ const Sidebar: React.FC = () => {
                     <Settings size={20} />
                     <span>Settings</span>
                 </div>
-                <div style={{ marginTop: 'auto', borderTop: '1px solid var(--border)', paddingTop: '1rem' }}>
-                    <NavLink to="/profile" className={({ isActive }) => isActive ? 'active' : ''}>
-                        <Users size={20} />
-                        <span>Profile</span>
-                    </NavLink>
+                <div style={{ marginTop: 'auto' }}>
+                    <div className="sidebar-footer">
+                        <div className="user-info">
+                            <div className="user-avatar-small">
+                                {user?.name?.charAt(0).toUpperCase()}
+                            </div>
+                            <div className="user-details">
+                                <span className="user-name">{user?.name}</span>
+                                <span className="user-email">{user?.email}</span>
+                            </div>
+                        </div>
+                        <button className="logout-btn" onClick={handleLogout} title="Logout">
+                            <LogOut size={18} />
+                        </button>
+                    </div>
                 </div>
             </nav>
+            {isOpen && <div className="sidebar-overlay" onClick={onClose} />}
             {isSettingsOpen && <SettingsModal onClose={() => setIsSettingsOpen(false)} />}
         </aside>
     );

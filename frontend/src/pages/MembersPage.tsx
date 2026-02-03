@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { Search, UserPlus, MoreHorizontal, Shield, Mail, Calendar } from 'lucide-react';
+import { Search, UserPlus, MoreHorizontal, Shield, Mail, Calendar, Trash2, Edit2 } from 'lucide-react';
 import api from '../services/api';
 import './MembersPage.css';
+import { useAuthStore } from '../store/authStore';
 
 const MembersPage: React.FC = () => {
     const [users, setUsers] = useState<any[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(true);
+    const [roles, setRoles] = useState<any[]>([]);
+    const [editingUser, setEditingUser] = useState<string | null>(null);
+    const currentUser = useAuthStore(state => state.user);
 
     const fetchUsers = async () => {
         try {
@@ -19,9 +23,39 @@ const MembersPage: React.FC = () => {
         }
     };
 
+    const fetchRoles = async () => {
+        try {
+            const { data } = await api.get('roles');
+            setRoles(data);
+        } catch (err) {
+            console.error('Failed to fetch roles');
+        }
+    };
+
     useEffect(() => {
         fetchUsers();
+        fetchRoles();
     }, []);
+
+    const handleDeleteUser = async (id: string) => {
+        if (!window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) return;
+        try {
+            await api.delete(`users/${id}`);
+            setUsers(users.filter(u => u.id !== id));
+        } catch (err) {
+            alert('Failed to delete user');
+        }
+    };
+
+    const handleUpdateRole = async (userId: string, role: string) => {
+        try {
+            await api.patch(`users/${userId}/role`, { role });
+            setUsers(users.map(u => u.id === userId ? { ...u, role } : u));
+            setEditingUser(null);
+        } catch (err) {
+            alert('Failed to update role');
+        }
+    };
 
     const filteredUsers = users.filter(u =>
         u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -35,6 +69,8 @@ const MembersPage: React.FC = () => {
             default: return 'role-contributor';
         }
     };
+
+    const isAdmin = currentUser?.role === 'admin';
 
     return (
         <div className="members-page">
@@ -60,7 +96,7 @@ const MembersPage: React.FC = () => {
                             <th>Email</th>
                             <th>Role</th>
                             <th>Joined</th>
-                            <th></th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -85,12 +121,29 @@ const MembersPage: React.FC = () => {
                                     </div>
                                 </td>
                                 <td>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                        <Shield size={14} className={getRoleClass(user.role)} />
-                                        <span className={`role-badge ${getRoleClass(user.role)}`}>
-                                            {user.role}
-                                        </span>
-                                    </div>
+                                    {editingUser === user.id ? (
+                                        <select
+                                            value={user.role}
+                                            onChange={(e) => handleUpdateRole(user.id, e.target.value)}
+                                            onBlur={() => setEditingUser(null)}
+                                            autoFocus
+                                            className="role-select"
+                                        >
+                                            <option value="admin">Admin</option>
+                                            <option value="project-manager">Project Manager</option>
+                                            <option value="contributor">Contributor</option>
+                                            {roles.map(r => (
+                                                <option key={r.id} value={r.name}>{r.name}</option>
+                                            ))}
+                                        </select>
+                                    ) : (
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                            <Shield size={14} className={getRoleClass(user.role)} />
+                                            <span className={`role-badge ${getRoleClass(user.role)}`}>
+                                                {user.role}
+                                            </span>
+                                        </div>
+                                    )}
                                 </td>
                                 <td>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -101,9 +154,24 @@ const MembersPage: React.FC = () => {
                                     </div>
                                 </td>
                                 <td style={{ textAlign: 'right' }}>
-                                    <button className="icon-btn">
-                                        <MoreHorizontal size={18} />
-                                    </button>
+                                    {isAdmin && user.id !== currentUser.id && (
+                                        <div className="actions-cell">
+                                            <button
+                                                className="icon-btn edit-btn"
+                                                onClick={() => setEditingUser(user.id)}
+                                                title="Change Role"
+                                            >
+                                                <Edit2 size={16} />
+                                            </button>
+                                            <button
+                                                className="icon-btn delete-btn"
+                                                onClick={() => handleDeleteUser(user.id)}
+                                                title="Delete User"
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
+                                    )}
                                 </td>
                             </tr>
                         ))}

@@ -16,6 +16,8 @@ model User {
   password  String
   name      String
   role      String    @default("contributor") // admin, project-manager, contributor
+  roleId    String?
+  customRole Role?    @relation(fields: [roleId], references: [id])
   bio       String?
   avatarUrl String?
   projects  Member[]
@@ -60,10 +62,23 @@ model Member {
   userId    String
   projectId String
   role      String   @default("contributor")
+  roleId    String?
+  customRole Role?   @relation(fields: [roleId], references: [id])
   user      User     @relation(fields: [userId], references: [id])
   project   Project  @relation(fields: [projectId], references: [id])
 
   @@unique([userId, projectId])
+}
+
+model Role {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  permissions String   @default("[]") // JSON stringified permissions
+  users       User[]
+  members     Member[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Issue {

@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { X, Send } from 'lucide-react';
 import api from '../../services/api';
 import './IssueDetails.css';
+import socket from '../../services/socket';
+import { useAuthStore } from '../../store/authStore';
+import { Edit2, Trash2, Check, X as CloseIcon } from 'lucide-react';
 
 interface IssueDetailsProps {
     issueId: string;
@@ -13,7 +16,10 @@ interface IssueDetailsProps {
 const IssueDetails: React.FC<IssueDetailsProps> = ({ issueId, members, onClose, onUpdate }) => {
     const [issue, setIssue] = useState<any>(null);
     const [comment, setComment] = useState('');
+    const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+    const [editContent, setEditContent] = useState('');
     const [newAttachmentUrl, setNewAttachmentUrl] = useState('');
+    const { user } = useAuthStore();
 
     useEffect(() => {
         const fetchIssue = async () => {
@@ -25,6 +31,37 @@ const IssueDetails: React.FC<IssueDetailsProps> = ({ issueId, members, onClose, 
             }
         };
         fetchIssue();
+
+        socket.on('commentCreated', (newComment: any) => {
+            if (newComment.issueId === issueId) {
+                setIssue((prev: any) => ({
+                    ...prev,
+                    comments: [newComment, ...(prev?.comments || [])]
+                }));
+            }
+        });
+
+        socket.on('commentUpdated', (updatedComment: any) => {
+            setIssue((prev: any) => ({
+                ...prev,
+                comments: prev?.comments?.map((c: any) => c.id === updatedComment.id ? updatedComment : c)
+            }));
+        });
+
+        socket.on('commentDeleted', ({ id, issueId: cIssueId }: any) => {
+            if (cIssueId === issueId) {
+                setIssue((prev: any) => ({
+                    ...prev,
+                    comments: prev?.comments?.filter((c: any) => c.id !== id)
+                }));
+            }
+        });
+
+        return () => {
+            socket.off('commentCreated');
+            socket.off('commentUpdated');
+            socket.off('commentDeleted');
+        };
     }, [issueId]);
 
     const handleUpdate = async (field: string, value: any) => {
@@ -45,13 +82,31 @@ const IssueDetails: React.FC<IssueDetailsProps> = ({ issueId, members, onClose, 
                 content: comment,
                 issueId
             });
-            setIssue({
-                ...issue,
-                comments: [data, ...(issue.comments || [])]
-            });
+            // Locally update to feel responsive, socket will catch it too if we don't handle dedup
+            // But usually we just let the socket handle it or check for existence
             setComment('');
         } catch (err) {
             console.error('Failed to post comment');
+        }
+    };
+
+    const handleUpdateComment = async (id: string) => {
+        if (!editContent.trim()) return;
+        try {
+            await api.patch(`/comments/${id}`, { content: editContent });
+            setEditingCommentId(null);
+            setEditContent('');
+        } catch (err) {
+            console.error('Failed to update comment');
+        }
+    };
+
+    const handleDeleteComment = async (id: string) => {
+        if (!window.confirm('Delete this comment?')) return;
+        try {
+            await api.delete(`/comments/${id}`);
+        } catch (err) {
+            console.error('Failed to delete comment');
         }
     };
 
@@ -136,10 +191,35 @@ const IssueDetails: React.FC<IssueDetailsProps> = ({ issueId, members, onClose, 
                                 {issue.comments?.map((c: any) => (
                                     <div key={c.id} className="comment-item">
                                         <div className="comment-header">
-                                            <strong>{c.author?.name}</strong>
-                                            <span>{new Date(c.createdAt).toLocaleDateString()}</span>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                <strong>{c.author?.name}</strong>
+                                                <span>{new Date(c.createdAt).toLocaleDateString()}</span>
+                                            </div>
+                                            {user?.id === c.authorId && (
+                                                <div className="comment-actions">
+                                                    <button onClick={() => {
+                                                        setEditingCommentId(c.id);
+                                                        setEditContent(c.content);
+                                                    }}><Edit2 size={14} /></button>
+                                                    <button onClick={() => handleDeleteComment(c.id)}><Trash2 size={14} /></button>
+                                                </div>
+                                            )}
                                         </div>
-                                        <p>{c.content}</p>
+                                        {editingCommentId === c.id ? (
+                                            <div className="edit-comment-box">
+                                                <textarea
+                                                    value={editContent}
+                                                    onChange={e => setEditContent(e.target.value)}
+                                                    autoFocus
+                                                />
+                                                <div className="edit-actions">
+                                                    <button onClick={() => setEditingCommentId(null)}><CloseIcon size={14} /></button>
+                                                    <button onClick={() => handleUpdateComment(c.id)} className="save-btn"><Check size={14} /></button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <p>{c.content}</p>
+                                        )}
                                     </div>
                                 ))}
                             </div>

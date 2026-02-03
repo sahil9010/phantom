@@ -22,9 +22,19 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
             return res.status(401).json({ error: 'User no longer exists. Please log in again.' });
         }
 
-        req.user = decoded;
+        req.user = user; // Store full user object
         next();
     } catch (error) {
         res.status(401).json({ error: 'Invalid token' });
+    }
+};
+
+export const protect = authenticate;
+
+export const adminOnly = (req: AuthRequest, res: Response, next: NextFunction) => {
+    if (req.user && req.user.role === 'admin') {
+        next();
+    } else {
+        res.status(403).json({ error: 'Admin resource. Access denied.' });
     }
 };

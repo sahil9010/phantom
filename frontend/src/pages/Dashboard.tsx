@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Layout, Trash2 } from 'lucide-react';
+import { Plus, Layout, Trash2, Edit2, Check } from 'lucide-react';
 import api from '../services/api';
 import CreateProjectModal from '../components/project/CreateProjectModal';
 import './Dashboard.css';
+import socket from '../services/socket';
 
 import { useAuthStore } from '../store/authStore';
 
 const Dashboard: React.FC = () => {
     const [projects, setProjects] = useState<any[]>([]);
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
+    const [editName, setEditName] = useState('');
     const { user } = useAuthStore();
     const navigate = useNavigate();
 
@@ -35,8 +38,36 @@ const Dashboard: React.FC = () => {
         }
     };
 
+    const handleUpdateProject = async (e: React.FormEvent, projectId: string) => {
+        e.stopPropagation();
+        try {
+            await api.patch(`/projects/${projectId}`, { name: editName });
+            setEditingProjectId(null);
+            setEditName('');
+        } catch (err) {
+            console.error('Failed to update project');
+            alert('Failed to update project');
+        }
+    };
+
     useEffect(() => {
         fetchProjects();
+
+        socket.on('projectCreated', (newProject: any) => {
+            setProjects(prev => {
+                if (prev.find(p => p.id === newProject.id)) return prev;
+                return [...prev, newProject];
+            });
+        });
+
+        socket.on('projectUpdated', (updatedProject: any) => {
+            setProjects(prev => prev.map(p => p.id === updatedProject.id ? updatedProject : p));
+        });
+
+        return () => {
+            socket.off('projectCreated');
+            socket.off('projectUpdated');
+        };
     }, []);
 
     return (
@@ -60,17 +91,47 @@ const Dashboard: React.FC = () => {
                             <Layout size={24} color="white" />
                         </div>
                         <div className="project-info">
-                            <h3>{project.name}</h3>
-                            <p>{project.key} • Managed project</p>
+                            {editingProjectId === project.id ? (
+                                <div className="edit-project-form" onClick={e => e.stopPropagation()}>
+                                    <input
+                                        value={editName}
+                                        onChange={e => setEditName(e.target.value)}
+                                        autoFocus
+                                        onKeyDown={e => {
+                                            if (e.key === 'Enter') handleUpdateProject(e, project.id);
+                                            if (e.key === 'Escape') setEditingProjectId(null);
+                                        }}
+                                    />
+                                    <button onClick={(e) => handleUpdateProject(e, project.id)}><Check size={16} /></button>
+                                </div>
+                            ) : (
+                                <>
+                                    <h3>{project.name}</h3>
+                                    <p>{project.key} • Managed project</p>
+                                </>
+                            )}
                         </div>
                         {user?.role === 'admin' && (
-                            <button
-                                className="delete-project-btn"
-                                onClick={(e) => handleDeleteProject(e, project.id, project.name)}
-                                title="Delete Project"
-                            >
-                                <Trash2 size={16} />
-                            </button>
+                            <div className="project-actions">
+                                <button
+                                    className="edit-project-btn"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setEditingProjectId(project.id);
+                                        setEditName(project.name);
+                                    }}
+                                    title="Edit Project"
+                                >
+                                    <Edit2 size={16} />
+                                </button>
+                                <button
+                                    className="delete-project-btn"
+                                    onClick={(e) => handleDeleteProject(e, project.id, project.name)}
+                                    title="Delete Project"
+                                >
+                                    <Trash2 size={16} />
+                                </button>
+                            </div>
                         )}
                     </div>
                 ))}

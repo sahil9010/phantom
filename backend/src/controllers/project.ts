@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import prisma from '../config/db';
+import { emitGlobal } from '../services/socket';
 
 interface AuthRequest extends Request {
     user?: any;
@@ -21,6 +22,7 @@ export const createProject = async (req: AuthRequest, res: Response) => {
                 }
             }
         });
+        emitGlobal('projectCreated', project);
         res.status(201).json(project);
     } catch (error) {
         console.error('Project creation error:', error);
@@ -144,5 +146,21 @@ export const deleteProject = async (req: AuthRequest, res: Response) => {
     } catch (error) {
         console.error('Project deletion error:', error);
         res.status(500).json({ error: 'Failed to delete project' });
+    }
+};
+export const updateProject = async (req: AuthRequest, res: Response) => {
+    const { id } = req.params;
+    const { name, description } = req.body;
+
+    try {
+        const project = await prisma.project.update({
+            where: { id },
+            data: { name, description }
+        });
+        emitGlobal('projectUpdated', project);
+        res.json(project);
+    } catch (error) {
+        console.error('Project update error:', error);
+        res.status(500).json({ error: 'Failed to update project' });
     }
 };
