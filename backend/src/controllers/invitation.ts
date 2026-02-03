@@ -46,7 +46,8 @@ export const sendInvitation = async (req: any, res: Response) => {
         });
 
         // Send real email via Nodemailer
-        const baseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        // Use FRONTEND_URL if set, otherwise fallback to the current request origin (very useful for production)
+        const baseUrl = process.env.FRONTEND_URL || (req.headers.origin) || 'http://localhost:5173';
         const joinLink = `${baseUrl}/join/${token}`;
 
         let emailSent = false;
