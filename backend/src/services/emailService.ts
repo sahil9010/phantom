@@ -2,19 +2,20 @@ import nodemailer from 'nodemailer';
 
 export const sendEmail = async (to: string, subject: string, html: string) => {
     const transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 587,
-        secure: false,
+        service: 'gmail',
         auth: {
             user: process.env.EMAIL_USER,
-            // Clean the password: remove spaces AND quotes which might be in the string
-            pass: process.env.EMAIL_PASS?.replace(/[\s"]/g, ''),
+            // Strip any quotes or spaces that might have sneaked into the env variable
+            pass: process.env.EMAIL_PASS?.replace(/[\s"']/g, ''),
         },
-        connectionTimeout: 30000, // 30 seconds
+        tls: {
+            // Do not fail on invalid certs (common on Render/Vercel)
+            rejectUnauthorized: false
+        },
+        connectionTimeout: 30000,
         greetingTimeout: 30000,
-        socketTimeout: 45000,
-        logger: true, // Log to console
-        debug: true,  // Include SMTP traffic in logs
+        logger: true,
+        debug: true,
     });
 
     try {
