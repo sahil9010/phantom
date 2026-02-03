@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import prisma from '../config/db';
 import { emitGlobal } from '../services/socket';
+import { createNotification } from './notification';
 
 interface AuthRequest extends Request {
     user?: any;
@@ -37,7 +38,7 @@ export const getProjects = async (req: AuthRequest, res: Response) => {
         const projects = await prisma.project.findMany({
             where: {
                 members: {
-                    some: { userId }
+                    some: { userId, status: 'ACCEPTED' }
                 }
             }
         });
@@ -72,20 +73,62 @@ export const addMember = async (req: AuthRequest, res: Response) => {
     const { userId, role } = req.body;
 
     try {
+        const project = await prisma.project.findUnique({ where: { id: projectId } });
+
         const member = await prisma.member.create({
             data: {
                 projectId,
                 userId,
-                role: role || 'contributor'
+                role: role || 'contributor',
+                status: 'PENDING'
             },
             include: {
                 user: { select: { id: true, name: true, email: true, role: true } }
             }
         });
+
+        // Create notification
+        await createNotification(userId, {
+            type: 'project_invitation',
+            title: 'Project Invitation',
+            message: `You've been invited to join project: ${project?.name}`,
+            projectId,
+            link: `/projects/${projectId}`
+        });
+
         res.status(201).json(member);
     } catch (error) {
         console.error('Add member error:', error);
         res.status(500).json({ error: 'Failed to add member' });
+    }
+};
+
+export const acceptInvitation = async (req: AuthRequest, res: Response) => {
+    const { id: projectId } = req.params;
+    const userId = req.user.id;
+
+    try {
+        await prisma.member.update({
+            where: { userId_projectId: { userId, projectId } },
+            data: { status: 'ACCEPTED' }
+        });
+        res.json({ message: 'Invitation accepted' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to accept invitation' });
+    }
+};
+
+export const rejectInvitation = async (req: AuthRequest, res: Response) => {
+    const { id: projectId } = req.params;
+    const userId = req.user.id;
+
+    try {
+        await prisma.member.delete({
+            where: { userId_projectId: { userId, projectId } }
+        });
+        res.json({ message: 'Invitation rejected' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to reject invitation' });
     }
 };
 

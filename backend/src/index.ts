@@ -11,6 +11,7 @@ import userRoutes from './routes/user';
 import invitationRoutes from './routes/invitation';
 import settingsRoutes from './routes/settings';
 import roleRoutes from './routes/role';
+import notificationRoutes from './routes/notification';
 
 dotenv.config();
 
@@ -66,6 +67,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/invitations', invitationRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/roles', roleRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // ✅ Health check
 app.get('/health', (req, res) => {

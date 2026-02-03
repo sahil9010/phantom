@@ -2,10 +2,20 @@ import React from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import { Menu, X, Trello } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import socket from '../../services/socket';
+import { useAuthStore } from '../../store/authStore';
+import NotificationCenter from './NotificationCenter';
 
 const AppLayout: React.FC = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const { user } = useAuthStore();
+
+    useEffect(() => {
+        if (user?.id) {
+            socket.emit('joinUser', user.id);
+        }
+    }, [user?.id]);
 
     return (
         <div className="app-layout" style={{ minHeight: '100vh', display: 'flex' }}>
@@ -18,7 +28,7 @@ const AppLayout: React.FC = () => {
                     <Trello size={24} color="var(--primary)" />
                     <span>Phantom</span>
                 </div>
-                <div style={{ width: '24px' }}></div> {/* Spacer */}
+                <NotificationCenter />
             </header>
 
             <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />

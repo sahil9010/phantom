@@ -5,6 +5,7 @@ import api from '../../services/api';
 import SettingsModal from '../settings/SettingsModal';
 import './Sidebar.css';
 import { useAuthStore } from '../../store/authStore';
+import NotificationCenter from './NotificationCenter';
 
 interface SidebarProps {
     isOpen?: boolean;
@@ -43,8 +44,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     return (
         <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
             <div className="sidebar-logo">
-                <Trello size={28} color="var(--primary)" />
-                <span>Phantom Projects</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <Trello size={28} color="var(--primary)" />
+                    <span>Phantom Projects</span>
+                </div>
+                {!isOpen && <NotificationCenter />}
             </div>
             <nav className="sidebar-nav">
                 <NavLink to="/dashboard" className={({ isActive }) => isActive ? 'active' : ''}>

@@ -1,0 +1,203 @@
+.notification-center {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.badge-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-subtle);
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.2s;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.badge-btn:hover {
+    background: var(--surface-raised);
+    color: var(--primary);
+}
+
+.badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: #ef4444;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--surface);
+    padding: 0 4px;
+}
+
+.notification-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: 320px;
+    max-height: 480px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdown-header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.dropdown-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.notification-list {
+    overflow-y: auto;
+    flex: 1;
+}
+
+.empty-notif {
+    padding: 2rem;
+    text-align: center;
+    color: var(--text-subtle);
+    font-size: 0.9rem;
+}
+
+.notification-item {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 0.75rem;
+    transition: background 0.2s;
+}
+
+.notification-item.unread {
+    background: rgba(var(--primary-rgb), 0.05);
+}
+
+.notification-item:hover {
+    background: var(--surface-raised);
+}
+
+.notif-content {
+    flex: 1;
+}
+
+.notif-content h4 {
+    margin: 0 0 0.25rem 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.notif-content p {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.85rem;
+    color: var(--text-subtle);
+    line-height: 1.4;
+}
+
+.timestamp {
+    font-size: 0.75rem;
+    color: var(--text-subtle);
+    opacity: 0.7;
+}
+
+.notif-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.accept-btn,
+.reject-btn {
+    padding: 0.4rem 0.8rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    border: none;
+    transition: all 0.2s;
+}
+
+.accept-btn {
+    background: var(--primary);
+    color: white;
+}
+
+.reject-btn {
+    background: var(--surface-raised);
+    color: var(--text-subtle);
+    border: 1px solid var(--border);
+}
+
+.accept-btn:hover {
+    background: var(--primary-dark);
+}
+
+.reject-btn:hover {
+    background: #fee2e2;
+    color: #ef4444;
+    border-color: #fecaca;
+}
+
+.view-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.8rem;
+    color: var(--primary);
+    text-decoration: none;
+    margin-top: 0.5rem;
+    font-weight: 500;
+}
+
+.view-link:hover {
+    text-decoration: underline;
+}
+
+.mark-read {
+    background: none;
+    border: none;
+    color: var(--text-subtle);
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+    height: fit-content;
+}
+
+.mark-read:hover {
+    opacity: 1;
+    color: var(--primary);
+}

@@ -26,9 +26,24 @@ model User {
   issuesReported Issue[] @relation("Reporter")
   comments  Comment[]
   invitations Invitation[]
+  notifications Notification[] @relation("UserNotifications")
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   settings  UserSetting?
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation("UserNotifications", fields: [userId], references: [id])
+  type      String   // project_invitation, task_assigned
+  title     String
+  message   String
+  link      String?
+  projectId String?
+  issueId   String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
 }
 
 model UserSetting {
@@ -62,6 +77,7 @@ model Member {
   userId    String
   projectId String
   role      String   @default("contributor")
+  status    String   @default("ACCEPTED") // ACCEPTED, PENDING
   roleId    String?
   customRole Role?   @relation(fields: [roleId], references: [id])
   user      User     @relation(fields: [userId], references: [id])

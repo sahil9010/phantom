@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import prisma from '../config/db';
 import { emitToProject } from '../services/socket';
+import { createNotification } from './notification';
 
 interface AuthRequest extends Request {
     user?: any;
@@ -44,6 +45,18 @@ export const createIssue = async (req: AuthRequest, res: Response) => {
         });
 
         emitToProject(projectId, 'issueCreated', result);
+
+        if (assigneeId && assigneeId !== reporterId) {
+            await createNotification(assigneeId, {
+                type: 'task_assigned',
+                title: 'New Task Assigned',
+                message: `You've been assigned to: ${title}`,
+                issueId: result.id,
+                projectId,
+                link: `/projects/${projectId}?issue=${result.id}`
+            });
+        }
+
         res.status(201).json(result);
     } catch (error) {
         console.error('Issue creation error:', error);
@@ -61,8 +74,21 @@ export const updateIssue = async (req: AuthRequest, res: Response) => {
     try {
         const issue = await prisma.issue.update({
             where: { id },
-            data
+            data,
+            include: { project: { select: { name: true } } }
         });
+
+        if (data.assigneeId) {
+            await createNotification(data.assigneeId, {
+                type: 'task_assigned',
+                title: 'Task Assigned',
+                message: `You've been assigned to: ${issue.title} in ${issue.project.name}`,
+                issueId: id,
+                projectId: issue.projectId,
+                link: `/projects/${issue.projectId}?issue=${id}`
+            });
+        }
+
         res.json(issue);
     } catch (error) {
         res.status(500).json({ error: 'Failed to update issue' });

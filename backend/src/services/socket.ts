@@ -26,6 +26,11 @@ export const initSocket = (server: HttpServer) => {
             console.log(`Socket ${socket.id} joined project_${projectId}`);
         });
 
+        socket.on('joinUser', (userId: string) => {
+            socket.join(`user_${userId}`);
+            console.log(`Socket ${socket.id} joined user_${userId}`);
+        });
+
         socket.on('disconnect', () => {
             console.log('Client disconnected:', socket.id);
         });
@@ -44,6 +49,12 @@ export const getIO = () => {
 export const emitToProject = (projectId: string, event: string, data: any) => {
     if (io) {
         io.to(`project_${projectId}`).emit(event, data);
+    }
+};
+
+export const emitToUser = (userId: string, event: string, data: any) => {
+    if (io) {
+        io.to(`user_${userId}`).emit(event, data);
     }
 };
 
