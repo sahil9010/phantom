@@ -1,34 +1,26 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
+
+// Initialize Resend with API Key from environment variables
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const sendEmail = async (to: string, subject: string, html: string) => {
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: process.env.EMAIL_USER,
-            // Strip any quotes or spaces that might have sneaked into the env variable
-            pass: process.env.EMAIL_PASS?.replace(/[\s"']/g, ''),
-        },
-        tls: {
-            // Do not fail on invalid certs (common on Render/Vercel)
-            rejectUnauthorized: false
-        },
-        connectionTimeout: 30000,
-        greetingTimeout: 30000,
-        logger: true,
-        debug: true,
-    });
-
     try {
-        const info = await transporter.sendMail({
-            from: `"Phantom Projects" <${process.env.EMAIL_USER}>`,
-            to,
-            subject,
-            html,
+        const { data, error } = await resend.emails.send({
+            from: 'Phantom Projects <onboarding@resend.dev>', // Resend's default test sender
+            to: [to],
+            subject: subject,
+            html: html,
         });
-        console.log('[EMAIL] Message sent: %s', info.messageId);
-        return info;
+
+        if (error) {
+            console.error('[RESEND ERROR] Detailed failure:', error);
+            throw error;
+        }
+
+        console.log('[RESEND] Email sent successfully:', data?.id);
+        return data;
     } catch (error) {
-        console.error('[EMAIL ERROR] Detailed failure:', error);
-        throw error; // Re-throw so the controller knows it failed
+        console.error('[RESEND ERROR] Uncaught failure:', error);
+        throw error;
     }
 };
