@@ -45,33 +45,46 @@ export const sendInvitation = async (req: any, res: Response) => {
             }
         });
 
-        // Send real email via Nodemailer (Ethereal for testing)
+        // Send real email via Nodemailer
         const baseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
         const joinLink = `${baseUrl}/join/${token}`;
-        await sendEmail(
-            email,
-            `Invitation to join ${project.name}`,
-            `
-            <div style="font-family: sans-serif; padding: 20px; color: #333;">
-                <h2>You've been invited!</h2>
-                <p><strong>${req.user.name}</strong> has invited you to join the project <strong>${project.name}</strong> on Phantom Projects.</p>
-                <div style="margin-top: 30px;">
-                    <a href="${joinLink}" style="background: #0052cc; color: white; padding: 12px 24px; border-radius: 4px; text-decoration: none; font-weight: bold;">
-                        Accept Invitation & Join Project
-                    </a>
-                </div>
-                <p style="margin-top: 30px; font-size: 0.8rem; color: #666;">
-                    If the button doesn't work, copy and paste this link into your browser:<br>
-                    ${joinLink}
-                </p>
-            </div>
-            `
-        );
 
-        res.status(201).json({ message: 'Invitation sent successfully', token, link: joinLink });
+        let emailSent = false;
+        try {
+            await sendEmail(
+                email,
+                `Invitation to join ${project.name}`,
+                `
+                <div style="font-family: sans-serif; padding: 20px; color: #333;">
+                    <h2>You've been invited!</h2>
+                    <p><strong>${req.user.name}</strong> has invited you to join the project <strong>${project.name}</strong> on Phantom Projects.</p>
+                    <div style="margin-top: 30px;">
+                        <a href="${joinLink}" style="background: #0052cc; color: white; padding: 12px 24px; border-radius: 4px; text-decoration: none; font-weight: bold;">
+                            Accept Invitation & Join Project
+                        </a>
+                    </div>
+                    <p style="margin-top: 30px; font-size: 0.8rem; color: #666;">
+                        If the button doesn't work, copy and paste this link into your browser:<br>
+                        ${joinLink}
+                    </p>
+                </div>
+                `
+            );
+            emailSent = true;
+        } catch (emailError) {
+            console.error('Failed to send invitation email:', emailError);
+            // We continue because the invitation is already in the database
+        }
+
+        res.status(201).json({
+            message: emailSent ? 'Invitation sent successfully' : 'Invitation created, but email failed to send',
+            token,
+            link: joinLink,
+            emailSent
+        });
     } catch (error) {
         console.error('Invitation error:', error);
-        res.status(500).json({ error: 'Failed to send invitation' });
+        res.status(500).json({ error: 'Failed to create invitation' });
     }
 };
 
