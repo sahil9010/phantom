@@ -29,8 +29,10 @@ app.use((req, res, next) => {
 // ✅ CORS setup for local dev + Vercel frontend
 const allowedOrigins = [
   'http://localhost:5173',
-  'http://localhost:5174', // current local port
+  'http://localhost:5174',
+  'http://192.168.1.25:5174',
   'https://phantom-theta-gray.vercel.app',
+  'https://pm.sahilmaharjan1.com.np',
   process.env.FRONTEND_URL
 ].filter(Boolean) as string[];
 
