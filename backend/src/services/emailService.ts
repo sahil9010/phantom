@@ -4,13 +4,17 @@ export const sendEmail = async (to: string, subject: string, html: string) => {
     const transporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
         port: 587,
-        secure: false, // Use STARTTLS
+        secure: false,
         auth: {
             user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS?.replace(/\s/g, ''), // Remove spaces if any
+            // Clean the password: remove spaces AND quotes which might be in the string
+            pass: process.env.EMAIL_PASS?.replace(/[\s"]/g, ''),
         },
-        connectionTimeout: 10000,
-        greetingTimeout: 10000,
+        connectionTimeout: 30000, // 30 seconds
+        greetingTimeout: 30000,
+        socketTimeout: 45000,
+        logger: true, // Log to console
+        debug: true,  // Include SMTP traffic in logs
     });
 
     try {
