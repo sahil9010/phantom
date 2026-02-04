@@ -1,13 +1,15 @@
 import { Request, Response } from 'express';
 import prisma from '../config/db';
 import { emitToProject } from '../services/socket';
+import { createNotification } from './notification';
+import { findMentionedUsers } from '../utils/text';
 
 interface AuthRequest extends Request {
     user?: any;
 }
 
 export const createComment = async (req: AuthRequest, res: Response) => {
-    const { content, issueId } = req.body;
+    const { content, issueId, parentId } = req.body;
     const authorId = req.user.id;
 
     if (!content || !issueId) {
@@ -19,7 +21,8 @@ export const createComment = async (req: AuthRequest, res: Response) => {
             data: {
                 content,
                 issueId,
-                authorId
+                authorId,
+                parentId: parentId || null
             },
             include: {
                 author: { select: { id: true, name: true } }
@@ -29,11 +32,53 @@ export const createComment = async (req: AuthRequest, res: Response) => {
         // We need the projectId to emit to the right room
         const issue = await prisma.issue.findUnique({
             where: { id: issueId },
-            select: { projectId: true }
+            include: { project: { select: { id: true, name: true } } }
         });
 
         if (issue) {
-            emitToProject(issue.projectId, 'commentCreated', { ...comment, issueId });
+            emitToProject(issue.project.id, 'commentCreated', { ...comment, issueId });
+
+            // 1. Handle Mentions
+            const mentionedUsernames = findMentionedUsers(content);
+            if (mentionedUsernames.length > 0) {
+                // Find users by name (or unique username if you have it)
+                const mentionedUsers = await prisma.user.findMany({
+                    where: { name: { in: mentionedUsernames } },
+                    select: { id: true }
+                });
+
+                for (const user of mentionedUsers) {
+                    if (user.id !== authorId) {
+                        await createNotification(user.id, {
+                            type: 'mention',
+                            title: 'You were mentioned',
+                            message: `${req.user.name} mentioned you in a comment in ${issue.project.name}`,
+                            issueId,
+                            projectId: issue.project.id,
+                            link: `/projects/${issue.project.id}?issue=${issueId}`
+                        });
+                    }
+                }
+            }
+
+            // 2. Handle Reply Notification
+            if (parentId) {
+                const parentComment = await prisma.comment.findUnique({
+                    where: { id: parentId },
+                    select: { authorId: true }
+                });
+
+                if (parentComment && parentComment.authorId !== authorId) {
+                    await createNotification(parentComment.authorId, {
+                        type: 'comment_reply',
+                        title: 'New Reply',
+                        message: `${req.user.name} replied to your comment in ${issue.project.name}`,
+                        issueId,
+                        projectId: issue.project.id,
+                        link: `/projects/${issue.project.id}?issue=${issueId}`
+                    });
+                }
+            }
         }
 
         res.status(201).json(comment);

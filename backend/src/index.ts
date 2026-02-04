@@ -71,7 +71,11 @@ app.use('/api/notifications', notificationRoutes);
 
 // ✅ Health check
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+app.get('/ping', (req, res) => {
+  res.send('pong');
 });
 
 // ✅ Root route
@@ -79,8 +83,23 @@ app.get('/', (req, res) => {
   res.send('Backend is running 🚀');
 });
 
+// ✅ Keep-alive logic (Self-pinging)
+const SELF_URL = 'https://phantom-backend-qmci.onrender.com';
+const interval = 14 * 60 * 1000; // 14 minutes
+
+function reloadWebsite() {
+  const https = require('https');
+  https.get(SELF_URL, (res: any) => {
+    console.log(`Self-ping at ${new Date().toISOString()}: Status Code ${res.statusCode}`);
+  }).on('error', (err: any) => {
+    console.error(`Self-ping error at ${new Date().toISOString()}:`, err.message);
+  });
+}
+
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  // Start self-pinging every 14 minutes to keep the server awake
+  setInterval(reloadWebsite, interval);
 });
 
 export default app;

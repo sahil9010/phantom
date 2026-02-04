@@ -123,7 +123,12 @@ export const getIssueDetails = async (req: Request, res: Response) => {
                 assignee: { select: { id: true, name: true } },
                 reporter: { select: { id: true, name: true } },
                 comments: {
-                    include: { author: { select: { id: true, name: true } } },
+                    include: {
+                        author: { select: { id: true, name: true } },
+                        children: {
+                            include: { author: { select: { id: true, name: true } } }
+                        }
+                    },
                     orderBy: { createdAt: 'desc' }
                 }
             }

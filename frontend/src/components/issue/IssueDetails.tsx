@@ -4,7 +4,8 @@ import api from '../../services/api';
 import './IssueDetails.css';
 import socket from '../../services/socket';
 import { useAuthStore } from '../../store/authStore';
-import { Edit2, Trash2, Check, X as CloseIcon } from 'lucide-react';
+import { Edit2, Trash2, Check, X as CloseIcon, Reply } from 'lucide-react';
+import CommentItem from './CommentItem';
 
 interface IssueDetailsProps {
     issueId: string;
@@ -19,6 +20,15 @@ const IssueDetails: React.FC<IssueDetailsProps> = ({ issueId, members, onClose, 
     const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
     const [editContent, setEditContent] = useState('');
     const [newAttachmentUrl, setNewAttachmentUrl] = useState('');
+    const [newAttachmentUrl, setNewAttachmentUrl] = useState('');
+
+    // Reply and Mention State
+    const [replyToId, setReplyToId] = useState<string | null>(null);
+    const [replyToName, setReplyToName] = useState<string | null>(null);
+    const [mentionQuery, setMentionQuery] = useState('');
+    const [showMentions, setShowMentions] = useState(false);
+    const [mentionIndex, setMentionIndex] = useState(0);
+
     const { user } = useAuthStore();
 
     useEffect(() => {
@@ -74,14 +84,54 @@ const IssueDetails: React.FC<IssueDetailsProps> = ({ issueId, members, onClose, 
         }
     };
 
+    const handleReply = (id: string, authorName: string) => {
+        setReplyToId(id);
+        setReplyToName(authorName);
+        // Focus input
+        const input = document.getElementById('comment-input');
+        if (input) input.focus();
+    };
+
+    const cancelReply = () => {
+        setReplyToId(null);
+        setReplyToName(null);
+    };
+
+    const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = e.target.value;
+        setComment(val);
+
+        // Simple mention detection: checks if last word starts with @
+        const lastWord = val.split(' ').pop();
+        if (lastWord && lastWord.startsWith('@') && lastWord.length > 1) {
+            setMentionQuery(lastWord.slice(1));
+            setShowMentions(true);
+        } else {
+            setShowMentions(false);
+        }
+    };
+
+    const insertMention = (name: string) => {
+        const words = comment.split(' ');
+        words.pop(); // Remove the partial @mention
+        const newText = [...words, `@${name} `].join(' ');
+        setComment(newText);
+        setShowMentions(false);
+        const input = document.getElementById('comment-input');
+        if (input) input.focus();
+    };
+
     const handleAddComment = async () => {
         if (!comment.trim()) return;
 
         try {
             const { data } = await api.post('comments', {
                 content: comment,
-                issueId
+                issueId,
+                parentId: replyToId
             });
+            setReplyToId(null);
+            setReplyToName(null);
             // Locally update to feel responsive, socket will catch it too if we don't handle dedup
             // But usually we just let the socket handle it or check for existence
             setComment('');
@@ -174,53 +224,58 @@ const IssueDetails: React.FC<IssueDetailsProps> = ({ issueId, members, onClose, 
 
                         <div className="comments-section">
                             <h3>Comments</h3>
-                            <div className="comment-input">
-                                <input
-                                    type="text"
-                                    placeholder="Add a comment..."
-                                    value={comment}
-                                    onChange={(e) => setComment(e.target.value)}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter') handleAddComment();
-                                    }}
-                                />
-                                <button onClick={handleAddComment}><Send size={16} /></button>
+                            <div className="comment-input-wrapper" style={{ position: 'relative' }}>
+                                {replyToId && (
+                                    <div className="replying-banner">
+                                        <span>Replying to {replyToName}</span>
+                                        <button onClick={cancelReply}><X size={12} /></button>
+                                    </div>
+                                )}
+
+                                {showMentions && (
+                                    <div className="mention-dropdown">
+                                        {members
+                                            .filter(m => m.user.name.toLowerCase().includes(mentionQuery.toLowerCase()))
+                                            .map(m => (
+                                                <div
+                                                    key={m.user.id}
+                                                    className="mention-option"
+                                                    onClick={() => insertMention(m.user.name)}
+                                                >
+                                                    {m.user.name}
+                                                </div>
+                                            ))}
+                                    </div>
+                                )}
+
+                                <div className="comment-input">
+                                    <input
+                                        id="comment-input"
+                                        type="text"
+                                        placeholder={replyToId ? "Write a reply..." : "Add a comment... (use @ to mention)"}
+                                        value={comment}
+                                        onChange={handleCommentChange}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') handleAddComment();
+                                        }}
+                                        autoComplete="off"
+                                    />
+                                    <button onClick={handleAddComment}><Send size={16} /></button>
+                                </div>
                             </div>
 
                             <div className="comments-list">
-                                {issue.comments?.map((c: any) => (
-                                    <div key={c.id} className="comment-item">
-                                        <div className="comment-header">
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                                <strong>{c.author?.name}</strong>
-                                                <span>{new Date(c.createdAt).toLocaleDateString()}</span>
-                                            </div>
-                                            {user?.id === c.authorId && (
-                                                <div className="comment-actions">
-                                                    <button onClick={() => {
-                                                        setEditingCommentId(c.id);
-                                                        setEditContent(c.content);
-                                                    }}><Edit2 size={14} /></button>
-                                                    <button onClick={() => handleDeleteComment(c.id)}><Trash2 size={14} /></button>
-                                                </div>
-                                            )}
-                                        </div>
-                                        {editingCommentId === c.id ? (
-                                            <div className="edit-comment-box">
-                                                <textarea
-                                                    value={editContent}
-                                                    onChange={e => setEditContent(e.target.value)}
-                                                    autoFocus
-                                                />
-                                                <div className="edit-actions">
-                                                    <button onClick={() => setEditingCommentId(null)}><CloseIcon size={14} /></button>
-                                                    <button onClick={() => handleUpdateComment(c.id)} className="save-btn"><Check size={14} /></button>
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <p>{c.content}</p>
-                                        )}
-                                    </div>
+                                {issue.comments?.filter((c: any) => !c.parentId).map((c: any) => (
+                                    <CommentItem
+                                        key={c.id}
+                                        comment={c}
+                                        onReply={handleReply}
+                                        onDelete={handleDeleteComment}
+                                        onEdit={(id, content) => {
+                                            setEditingCommentId(id);
+                                            setEditContent(content);
+                                        }}
+                                    />
                                 ))}
                             </div>
                         </div>
