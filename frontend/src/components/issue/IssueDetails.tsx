@@ -20,7 +20,6 @@ const IssueDetails: React.FC<IssueDetailsProps> = ({ issueId, members, onClose, 
     const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
     const [editContent, setEditContent] = useState('');
     const [newAttachmentUrl, setNewAttachmentUrl] = useState('');
-    const [newAttachmentUrl, setNewAttachmentUrl] = useState('');
 
     // Reply and Mention State
     const [replyToId, setReplyToId] = useState<string | null>(null);
@@ -30,6 +29,33 @@ const IssueDetails: React.FC<IssueDetailsProps> = ({ issueId, members, onClose, 
     const [mentionIndex, setMentionIndex] = useState(0);
 
     const { user } = useAuthStore();
+
+    // Build comment tree from flat list
+    const rootComments = React.useMemo(() => {
+        if (!issue?.comments) return [];
+        const commentMap = new Map();
+        const roots: any[] = [];
+
+        // First pass: map all comments
+        issue.comments.forEach((c: any) => {
+            commentMap.set(c.id, { ...c, children: [] });
+        });
+
+        // Second pass: attach children
+        issue.comments.forEach((c: any) => {
+            if (c.parentId) {
+                const parent = commentMap.get(c.parentId);
+                if (parent) {
+                    parent.children.push(commentMap.get(c.id));
+                }
+            } else {
+                roots.push(commentMap.get(c.id));
+            }
+        });
+
+        // Sort by date descending
+        return roots.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    }, [issue?.comments]);
 
     useEffect(() => {
         const fetchIssue = async () => {
@@ -265,7 +291,7 @@ const IssueDetails: React.FC<IssueDetailsProps> = ({ issueId, members, onClose, 
                             </div>
 
                             <div className="comments-list">
-                                {issue.comments?.filter((c: any) => !c.parentId).map((c: any) => (
+                                {rootComments.map((c: any) => (
                                     <CommentItem
                                         key={c.id}
                                         comment={c}
