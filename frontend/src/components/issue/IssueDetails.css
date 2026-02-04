@@ -186,6 +186,9 @@
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     font-size: 0.9rem;
+    color: var(--text);
+    /* Ensure text is visible */
+    background: white;
 }
 
 .comment-input button {
