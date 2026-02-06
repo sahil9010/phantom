@@ -97,18 +97,48 @@ export const updateIssue = async (req: AuthRequest, res: Response) => {
 
 export const getProjectIssues = async (req: Request, res: Response) => {
     const { projectId } = req.params;
+    const { sprintId, assigneeId, type, priority, label, search } = req.query;
+
+    const where: any = { projectId };
+
+    if (sprintId === 'null') {
+        where.sprintId = null;
+    } else if (sprintId) {
+        where.sprintId = sprintId as string;
+    }
+
+    if (assigneeId) where.assigneeId = assigneeId as string;
+    if (type) where.type = type as string;
+    if (priority) where.priority = priority as string;
+
+    if (label) {
+        where.labels = {
+            contains: label as string
+        };
+    }
+
+    if (search) {
+        where.OR = [
+            { title: { contains: search as string } }, // Removed mode: 'insensitive' for SQLite compatibility if needed, though PRISMA usually handles it. 
+            // SQLite default is case-insensitive for LIKE but Prisma `contains` maps to LIKE.
+            // If strict case-insensitive needed and using Postgres, mode: 'insensitive' is good. 
+            // For now, let's keep it simple.
+        ];
+    }
 
     try {
         const issues = await prisma.issue.findMany({
-            where: { projectId },
+            where,
             include: {
                 assignee: { select: { id: true, name: true } },
                 reporter: { select: { id: true, name: true } },
                 project: { select: { key: true } }
-            }
+            },
+            orderBy: { serialNumber: 'desc' } // Or 'rank' if we had one
         });
         res.json(issues);
     } catch (error) {
+        console.error('Get issues error:', error);
         res.status(500).json({ error: 'Failed to fetch issues' });
     }
 };

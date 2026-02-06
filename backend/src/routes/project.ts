@@ -10,6 +10,7 @@ import {
     acceptInvitation,
     rejectInvitation
 } from '../controllers/project';
+import { createSprint, getSprints, updateSprint, deleteSprint } from '../controllers/sprint';
 import { authenticate } from '../middleware/auth';
 
 const router = express.Router();
@@ -23,5 +24,11 @@ router.patch('/:id/members/reject', authenticate, rejectInvitation);
 router.delete('/:id/members/:userId', authenticate, removeMember);
 router.delete('/:id', authenticate, deleteProject);
 router.patch('/:id', authenticate, updateProject);
+
+// Sprint Routes
+router.post('/:projectId/sprints', authenticate, createSprint);
+router.get('/:projectId/sprints', authenticate, getSprints);
+router.patch('/sprints/:id', authenticate, updateSprint);
+router.delete('/sprints/:id', authenticate, deleteSprint);
 
 export default router;

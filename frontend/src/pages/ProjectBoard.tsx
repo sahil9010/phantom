@@ -6,6 +6,8 @@ import KanbanBoard from '../components/board/KanbanBoard';
 import IssueDetails from '../components/issue/IssueDetails';
 import CreateIssueModal from '../components/issue/CreateIssueModal';
 import AddMemberModal from '../components/project/AddMemberModal';
+import FilterBar from '../components/board/FilterBar';
+import CreateSprintModal from '../components/project/CreateSprintModal';
 import './ProjectBoard.css';
 import socket from '../services/socket';
 
@@ -13,18 +15,53 @@ const ProjectBoard: React.FC = () => {
     const { id } = useParams();
     const [project, setProject] = useState<any>(null);
     const [issues, setIssues] = useState<any[]>([]);
+    const [sprints, setSprints] = useState<any[]>([]);
     const [selectedIssueId, setSelectedIssueId] = useState<string | null>(null);
     const [isCreatingIssue, setIsCreatingIssue] = useState<{ status: string } | null>(null);
     const [isManagingMembers, setIsManagingMembers] = useState(false);
+    const [isCreatingSprint, setIsCreatingSprint] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const [filters, setFilters] = useState<any>({});
+    const [view, setView] = useState<'board' | 'backlog'>('board');
     const navigate = useNavigate();
 
     const fetchIssues = async () => {
         try {
-            const { data: issuesData } = await api.get(`/issues/project/${id}`);
+            const queryParams = new URLSearchParams({
+                ...filters,
+                search: searchQuery
+            });
+
+            // If viewing board, default to active sprint or no sprint filter if we want all?
+            // Usually Board = Active Sprint. Backlog = No Sprint (sprintId=null).
+            // For now, let's keep it simple: Filter Bar controls manual filtering. 
+            // BUT, if in Backlog view, force sprintId=null.
+
+            if (view === 'backlog') {
+                queryParams.set('sprintId', 'null');
+            } else {
+                // Try to find active sprint
+                const activeSprint = sprints.find((s: any) => s.status === 'active');
+                if (activeSprint) {
+                    queryParams.set('sprintId', activeSprint.id);
+                }
+                // If no active sprint, maybe show everything or just empty board? 
+                // Let's not restrict if no active sprint found for now to avoid confusion, or restriction handled by user manually selecting sprint filter?
+            }
+
+            const { data: issuesData } = await api.get(`/issues/project/${id}?${queryParams.toString()}`);
             setIssues(issuesData);
         } catch (err) {
             console.error('Failed to fetch issues');
+        }
+    };
+
+    const fetchSprints = async () => {
+        try {
+            const { data } = await api.get(`/projects/${id}/sprints`);
+            setSprints(data);
+        } catch (error) {
+            console.error('Failed to fetch sprints');
         }
     };
 
@@ -37,8 +74,9 @@ const ProjectBoard: React.FC = () => {
                 console.error('Failed to fetch project details');
             }
         };
+
         fetchProject();
-        fetchIssues();
+        fetchSprints();
 
         socket.emit('joinProject', id);
 
@@ -54,6 +92,10 @@ const ProjectBoard: React.FC = () => {
         };
     }, [id]);
 
+    useEffect(() => {
+        fetchIssues();
+    }, [id, filters, searchQuery, view, sprints.length]); // Re-fetch when context changes
+
     if (!project) return <div>Loading...</div>;
 
     return (
@@ -64,6 +106,22 @@ const ProjectBoard: React.FC = () => {
 
             <header className="board-header">
                 <h1>{project.name} board</h1>
+                <div className="board-controls">
+                    <div className="view-toggle">
+                        <button
+                            className={`toggle-btn ${view === 'board' ? 'active' : ''}`}
+                            onClick={() => setView('board')}
+                        >
+                            Board
+                        </button>
+                        <button
+                            className={`toggle-btn ${view === 'backlog' ? 'active' : ''}`}
+                            onClick={() => setView('backlog')}
+                        >
+                            Backlog
+                        </button>
+                    </div>
+                </div>
                 <div className="board-actions">
                     <div className="search-box">
                         <Search size={16} />
@@ -74,7 +132,10 @@ const ProjectBoard: React.FC = () => {
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
-                    <button className="icon-btn"><Filter size={18} /></button>
+                    {/* <button className="icon-btn"><Filter size={18} /></button> REMOVED generic filter btn */}
+                    <button className="btn-secondary" onClick={() => setIsCreatingSprint(true)}>
+                        Create Sprint
+                    </button>
                     <button className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem' }} onClick={() => navigate(`/projects/${id}/team`)}>
                         <Users size={18} />
                         <span>Team</span>
@@ -87,11 +148,14 @@ const ProjectBoard: React.FC = () => {
                 </div>
             </header>
 
+            <FilterBar
+                members={project.members || []}
+                filters={filters}
+                onFilterChange={setFilters}
+            />
+
             <KanbanBoard
-                issues={issues.filter(i =>
-                    i.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    (i.description && i.description.toLowerCase().includes(searchQuery.toLowerCase()))
-                )}
+                issues={issues}
                 members={project.members || []}
                 setIssues={setIssues}
                 projectId={id!}
@@ -139,6 +203,16 @@ const ProjectBoard: React.FC = () => {
                             }
                         };
                         fetchProject();
+                    }}
+                />
+            )}
+
+            {isCreatingSprint && (
+                <CreateSprintModal
+                    projectId={id!}
+                    onClose={() => setIsCreatingSprint(false)}
+                    onCreated={() => {
+                        fetchSprints();
                     }}
                 />
             )}

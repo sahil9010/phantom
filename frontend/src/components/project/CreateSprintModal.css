@@ -1,0 +1,9 @@
+/* Reusing modal styles implicitly or defining minimal overrides */
+.form-row {
+    display: flex;
+    gap: 1rem;
+}
+
+.form-row .form-group {
+    flex: 1;
+}

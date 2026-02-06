@@ -108,12 +108,16 @@ export const acceptInvitation = async (req: AuthRequest, res: Response) => {
     const userId = req.user.id;
 
     try {
-        await prisma.member.update({
+        const member = await prisma.member.update({
             where: { userId_projectId: { userId, projectId } },
-            data: { status: 'ACCEPTED' }
+            data: { status: 'ACCEPTED' },
+            include: { user: true, project: true }
         });
-        res.json({ message: 'Invitation accepted' });
+
+        emitGlobal('memberUpdated', member);
+        res.json(member);
     } catch (error) {
+        console.error('Accept invitation error:', error);
         res.status(500).json({ error: 'Failed to accept invitation' });
     }
 };
