@@ -6,21 +6,25 @@ interface CreateIssueModalProps {
     projectId: string;
     status: string;
     members: any[];
+    sprints: any[];
     onClose: () => void;
     onCreated: (issue: any) => void;
 }
 
-const CreateIssueModal: React.FC<CreateIssueModalProps> = ({ projectId, status, members, onClose, onCreated }) => {
+const CreateIssueModal: React.FC<CreateIssueModalProps> = ({ projectId, status, members, sprints, onClose, onCreated }) => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [imageUrl, setImageUrl] = useState('');
     const [priority, setPriority] = useState('medium');
     const [assigneeId, setAssigneeId] = useState('');
+    // Default to active sprint if available
+    const activeSprint = sprints.find((s: any) => s.status === 'active');
+    const [sprintId, setSprintId] = useState(activeSprint ? activeSprint.id : '');
     const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!title.trim()) return;
+        if (!title.trim() || !sprintId) return;
 
         setLoading(true);
         try {
@@ -32,6 +36,7 @@ const CreateIssueModal: React.FC<CreateIssueModalProps> = ({ projectId, status, 
                 type: 'task',
                 priority,
                 assigneeId: assigneeId || null,
+                sprintId,
                 attachments: JSON.stringify(imageUrl ? [imageUrl] : [])
             });
             onCreated(data);
@@ -143,6 +148,23 @@ const CreateIssueModal: React.FC<CreateIssueModalProps> = ({ projectId, status, 
                                 <div className="badge-status">
                                     {status.replace('_', ' ').toUpperCase()}
                                 </div>
+                            </div>
+
+                            <div className="field-group">
+                                <label>Sprint</label>
+                                <select
+                                    className="premium-input-sm"
+                                    value={sprintId}
+                                    onChange={(e) => setSprintId(e.target.value)}
+                                    required
+                                >
+                                    <option value="" disabled>Select Sprint</option>
+                                    {sprints.map((s: any) => (
+                                        <option key={s.id} value={s.id}>
+                                            {s.name} ({s.status})
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
                     </div>

@@ -11,6 +11,11 @@ export const createIssue = async (req: AuthRequest, res: Response) => {
     const { title, description, type, priority, status, projectId, sprintId, assigneeId, dueDate, labels } = req.body;
     const reporterId = req.user.id;
 
+    if (!sprintId && sprintId !== null) { // If users strictly want 'inside sprints', maybe disallow null? User said "only be created inside the sprints only".
+        // Let's assume this means mandatory sprintId.
+        return res.status(400).json({ error: 'Issue must belong to a sprint' });
+    }
+
     try {
         const result = await prisma.$transaction(async (tx) => {
             // 1. Get and increment project issue count
@@ -88,6 +93,8 @@ export const updateIssue = async (req: AuthRequest, res: Response) => {
                 link: `/projects/${issue.projectId}?issue=${id}`
             });
         }
+
+        emitToProject(issue.projectId, 'issueUpdated', issue);
 
         res.json(issue);
     } catch (error) {

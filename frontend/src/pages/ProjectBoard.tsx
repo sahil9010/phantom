@@ -87,8 +87,13 @@ const ProjectBoard: React.FC = () => {
             });
         });
 
+        socket.on('issueUpdated', (updatedIssue) => {
+            setIssues(prev => prev.map(i => i.id === updatedIssue.id ? updatedIssue : i));
+        });
+
         return () => {
             socket.off('issueCreated');
+            socket.off('issueUpdated');
         };
     }, [id]);
 
@@ -179,6 +184,7 @@ const ProjectBoard: React.FC = () => {
                     projectId={id!}
                     status={isCreatingIssue.status}
                     members={project.members || []}
+                    sprints={sprints}
                     onClose={() => setIsCreatingIssue(null)}
                     onCreated={(newIssue) => {
                         setIssues(prev => [...prev, newIssue]);
