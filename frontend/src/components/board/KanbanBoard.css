@@ -2,11 +2,10 @@
     flex: 1;
     overflow-x: auto;
     overflow-y: hidden;
-    padding: 1rem 1.5rem 2rem;
+    padding: 1rem 0 2rem;
     display: flex;
     flex-direction: column;
-    /* Smooth horizontal scrolling for tabs/tablets */
-    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
 }
 
@@ -37,11 +36,21 @@
 }
 
 /* Tablet / Tab Responsive */
-@media (max-width: 1024px) {
+@media (max-width: 768px) {
+    .board-columns {
+        padding: 0 1rem;
+    }
+
     .board-column {
-        scroll-snap-align: center;
+        width: calc(100vw - 3rem);
+        min-width: calc(100vw - 3rem);
+        flex-shrink: 0;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .board-column {
         width: 300px;
-        /* Force consistent width on smaller screens */
         flex-shrink: 0;
     }
 }

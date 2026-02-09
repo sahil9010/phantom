@@ -98,14 +98,23 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 <NavLink
                     to={projectId ? `/projects/${projectId}/team` : "/teams"}
                     className={({ isActive }) => (isActive ? 'active' : '') + (!projectId ? ' disabled-nav' : '')}
-                    onClick={(e) => !projectId && e.preventDefault()}
+                    onClick={(e) => {
+                        if (!projectId) {
+                            e.preventDefault();
+                        } else {
+                            onClose?.();
+                        }
+                    }}
                 >
                     <Users size={20} />
                     <span>Team</span>
                 </NavLink>
                 <div
                     className={`nav-item ${isSettingsOpen ? 'active' : ''}`}
-                    onClick={() => setIsSettingsOpen(true)}
+                    onClick={() => {
+                        setIsSettingsOpen(true);
+                        onClose?.();
+                    }}
                     style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.875rem 1rem', color: 'var(--text-subtle)', fontWeight: 500 }}
                 >
                     <Settings size={20} />
@@ -128,7 +137,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                     </div>
                 </div>
             </nav>
-            {isOpen && <div className="sidebar-overlay" onClick={onClose} />}
+            <div className={`sidebar-overlay ${isOpen ? 'show' : ''}`} onClick={onClose} />
             {isSettingsOpen && <SettingsModal onClose={() => setIsSettingsOpen(false)} />}
         </aside>
     );

@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import socket from '../../services/socket';
 import { useAuthStore } from '../../store/authStore';
 import NotificationCenter from './NotificationCenter';
+import './AppLayout.css';
 
 const AppLayout: React.FC = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -18,7 +19,7 @@ const AppLayout: React.FC = () => {
     }, [user?.id]);
 
     return (
-        <div className="app-layout" style={{ minHeight: '100vh', display: 'flex' }}>
+        <div className="app-layout">
             {/* Mobile Header */}
             <header className="mobile-header">
                 <button className="menu-toggle" onClick={() => setIsSidebarOpen(true)}>
@@ -33,7 +34,7 @@ const AppLayout: React.FC = () => {
 
             <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
-            <main className="main-content" style={{ flex: 1, padding: '2rem', overflowX: 'auto' }}>
+            <main className="main-content">
                 <Outlet />
             </main>
         </div>

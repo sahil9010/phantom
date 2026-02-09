@@ -65,116 +65,6 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, rgba(0, 82, 204, 0.02) 0%, rgba(0, 101, 255, 0.02) 100%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.project-card:hover {
-    transform: translateY(-4px) scale(1.01);
-    box-shadow: var(--shadow-lg);
-    border-color: var(--primary);
-}
-
-.delete-project-btn {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    background: transparent;
-    color: var(--text-subtle);
-    border: none;
-    padding: 0.5rem;
-    cursor: pointer;
-    border-radius: 4px;
-    opacity: 0;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
-}
-
-.project-card:hover .delete-project-btn {
-    opacity: 1;
-}
-
-.delete-project-btn:hover {
-    background: rgba(255, 0, 0, 0.1);
-    color: var(--error);
-    transform: scale(1.1);
-}
-
-.project-card:hover::before {
-    opacity: 1;
-}
-
-.project-icon {
-    width: 64px;
-    height: 64px;
-    border-radius: var(--radius-md);
-    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    box-shadow: 0 4px 12px rgba(0, 82, 204, 0.2);
-}
-
-.project-info h3 {
-    font-size: 1.25rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    color: var(--text);
-}
-
-.project-info p {
-    font-size: 0.9rem;
-    color: var(--text-subtle);
-    line-height: 1.4;
-}
-
-.empty-state {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 5rem;
-    box-shadow: 0 4px 12px rgba(0, 82, 204, 0.4);
-    transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
-}
-
-.primary-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0, 82, 204, 0.5);
-    background-color: var(--primary-hover);
-}
-
-.project-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-    gap: 2rem;
-}
-
-.project-card {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    background: white;
-    padding: 2rem;
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow-sm);
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    position: relative;
-    overflow: hidden;
-}
-
-.project-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
     background: linear-gradient(135deg, rgba(0, 82, 204, 0.05) 0%, rgba(0, 101, 255, 0.05) 100%);
     opacity: 0;
     transition: opacity 0.3s ease;
@@ -186,10 +76,8 @@
     border-color: rgba(255, 255, 255, 0.6);
 }
 
-.delete-project-btn {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
+.delete-project-btn,
+.edit-project-btn {
     background: transparent;
     color: var(--text-subtle);
     border: none;
@@ -204,13 +92,28 @@
     z-index: 10;
 }
 
-.project-card:hover .delete-project-btn {
+.project-actions {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.project-card:hover .delete-project-btn,
+.project-card:hover .edit-project-btn {
     opacity: 1;
 }
 
 .delete-project-btn:hover {
     background: rgba(255, 0, 0, 0.1);
     color: var(--error);
+    transform: scale(1.1);
+}
+
+.edit-project-btn:hover {
+    background: rgba(0, 82, 204, 0.1);
+    color: var(--primary);
     transform: scale(1.1);
 }
 
@@ -228,6 +131,7 @@
     align-items: center;
     color: white;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
 }
 
 .project-info h3 {
@@ -251,4 +155,50 @@
     background: #f4f5f7;
     border: 2px dashed var(--border);
     border-radius: var(--radius-lg);
+}
+
+@media (max-width: 768px) {
+    .dashboard {
+        padding: 1rem;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+        font-size: 1.75rem;
+    }
+
+    .project-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .project-card {
+        padding: 1.5rem;
+        gap: 1rem;
+    }
+
+    .project-icon {
+        width: 48px;
+        height: 48px;
+    }
+
+    .project-icon svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .project-info h3 {
+        font-size: 1.1rem;
+    }
+
+    .delete-project-btn,
+    .edit-project-btn {
+        opacity: 1;
+    }
 }
