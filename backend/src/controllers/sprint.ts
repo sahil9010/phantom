@@ -61,6 +61,33 @@ export const updateSprint = async (req: AuthRequest, res: Response) => {
     const { name, startDate, endDate, status } = req.body;
 
     try {
+        const currentSprint = await prisma.sprint.findUnique({ where: { id } });
+        if (!currentSprint) return res.status(404).json({ error: 'Sprint not found' });
+
+        const projectId = currentSprint.projectId;
+
+        // If starting a sprint, ensure no other active sprints
+        if (status === 'active' && currentSprint.status !== 'active') {
+            const activeSprint = await prisma.sprint.findFirst({
+                where: { projectId, status: 'active' }
+            });
+            if (activeSprint) {
+                return res.status(400).json({ error: 'Only one sprint can be active at a time. Please complete the current active sprint first.' });
+            }
+        }
+
+        // If completing a sprint, deal with incomplete issues
+        if (status === 'completed' && currentSprint.status === 'active') {
+            // Move all non-DONE issues back to backlog (sprintId = null)
+            await prisma.issue.updateMany({
+                where: {
+                    sprintId: id,
+                    NOT: { status: 'done' }
+                },
+                data: { sprintId: null }
+            });
+        }
+
         const sprint = await prisma.sprint.update({
             where: { id },
             data: {
@@ -71,14 +98,10 @@ export const updateSprint = async (req: AuthRequest, res: Response) => {
             }
         });
 
-        if (status === 'active') {
-            // Ensure only one active sprint per project logic could go here
-            // But for now we trust the client or handle it loosely
-        }
-
-        emitToProject(sprint.projectId, 'sprintUpdated', sprint);
+        emitToProject(projectId, 'sprintUpdated', sprint);
         res.json(sprint);
     } catch (error) {
+        console.error('Update sprint error:', error);
         res.status(500).json({ error: 'Failed to update sprint' });
     }
 };

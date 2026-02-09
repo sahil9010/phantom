@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Search, Filter, MoreHorizontal, Users, UserPlus } from 'lucide-react';
+import { Search, Filter, MoreHorizontal, Users, UserPlus, MessageSquare } from 'lucide-react';
 import api from '../services/api';
 import KanbanBoard from '../components/board/KanbanBoard';
 import IssueDetails from '../components/issue/IssueDetails';
@@ -8,6 +8,7 @@ import CreateIssueModal from '../components/issue/CreateIssueModal';
 import AddMemberModal from '../components/project/AddMemberModal';
 import FilterBar from '../components/board/FilterBar';
 import CreateSprintModal from '../components/project/CreateSprintModal';
+import ProjectChat from '../components/project/ProjectChat';
 import './ProjectBoard.css';
 import socket from '../services/socket';
 
@@ -23,6 +24,7 @@ const ProjectBoard: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [filters, setFilters] = useState<any>({});
     const [view, setView] = useState<'board' | 'backlog'>('board');
+    const [isChatOpen, setIsChatOpen] = useState(false);
     const navigate = useNavigate();
 
     const fetchIssues = async () => {
@@ -91,9 +93,24 @@ const ProjectBoard: React.FC = () => {
             setIssues(prev => prev.map(i => i.id === updatedIssue.id ? updatedIssue : i));
         });
 
+        socket.on('sprintCreated', (newSprint) => {
+            setSprints(prev => [...prev, newSprint]);
+        });
+
+        socket.on('sprintUpdated', (updatedSprint) => {
+            setSprints(prev => prev.map(s => s.id === updatedSprint.id ? updatedSprint : s));
+        });
+
+        socket.on('sprintDeleted', (sprintId) => {
+            setSprints(prev => prev.filter(s => s.id !== sprintId));
+        });
+
         return () => {
             socket.off('issueCreated');
             socket.off('issueUpdated');
+            socket.off('sprintCreated');
+            socket.off('sprintUpdated');
+            socket.off('sprintDeleted');
         };
     }, [id]);
 
@@ -110,7 +127,31 @@ const ProjectBoard: React.FC = () => {
             </nav>
 
             <header className="board-header">
-                <h1>{project.name} board</h1>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                    <h1>{project.name} board</h1>
+                    {view === 'board' && sprints.find(s => s.status === 'active') && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: 'var(--text-subtle)', fontSize: '0.9rem' }}>
+                            <span style={{ fontWeight: 600, color: 'var(--text)' }}>
+                                {sprints.find(s => s.status === 'active')?.name}
+                            </span>
+                            <button
+                                className="btn-secondary"
+                                style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}
+                                onClick={async () => {
+                                    const s = sprints.find(s => s.status === 'active');
+                                    if (window.confirm(`Complete sprint ${s.name}? Incomplete issues will move to backlog.`)) {
+                                        try {
+                                            await api.patch(`/projects/sprints/${s.id}`, { status: 'completed' });
+                                            fetchSprints();
+                                        } catch (e) { console.error(e); }
+                                    }
+                                }}
+                            >
+                                Complete Sprint
+                            </button>
+                        </div>
+                    )}
+                </div>
                 <div className="board-controls">
                     <div className="view-toggle">
                         <button
@@ -149,6 +190,9 @@ const ProjectBoard: React.FC = () => {
                         <UserPlus size={18} />
                         <span>Invite</span>
                     </button>
+                    <button className={`icon-btn ${isChatOpen ? 'active' : ''}`} onClick={() => setIsChatOpen(!isChatOpen)}>
+                        <MessageSquare size={18} />
+                    </button>
                     <button className="icon-btn"><MoreHorizontal size={18} /></button>
                 </div>
             </header>
@@ -158,6 +202,38 @@ const ProjectBoard: React.FC = () => {
                 filters={filters}
                 onFilterChange={setFilters}
             />
+
+            {view === 'backlog' && sprints.length > 0 && (
+                <div className="sprints-list-container" style={{ marginBottom: '1rem', background: 'white', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                    <h3 style={{ fontSize: '1rem', marginBottom: '0.5rem', color: 'var(--text)' }}>Planned Sprints</h3>
+                    <div className="sprints-grid" style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))' }}>
+                        {sprints.map((s: any) => (
+                            <div key={s.id} className="sprint-card" style={{ padding: '1rem', border: '1px solid var(--border)', borderRadius: '6px', background: 'var(--surface-raised)' }}>
+                                <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>{s.name}</div>
+                                <div style={{ fontSize: '0.8rem', color: 'var(--text-subtle)', marginBottom: '0.5rem' }}>
+                                    {s.status.toUpperCase()} • {s.startDate ? new Date(s.startDate).toLocaleDateString() : 'No Date'}
+                                </div>
+                                {s.status === 'planned' && (
+                                    <button
+                                        className="btn-primary"
+                                        style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
+                                        onClick={async () => {
+                                            if (window.confirm(`Start sprint ${s.name}?`)) {
+                                                try {
+                                                    await api.patch(`/projects/sprints/${s.id}`, { status: 'active' });
+                                                    fetchSprints();
+                                                } catch (e) { console.error(e); }
+                                            }
+                                        }}
+                                    >
+                                        Start Sprint
+                                    </button>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             <KanbanBoard
                 issues={issues}
@@ -221,6 +297,15 @@ const ProjectBoard: React.FC = () => {
                         fetchSprints();
                     }}
                 />
+            )}
+
+            {isChatOpen && (
+                <div className="board-chat-sidebar">
+                    <ProjectChat
+                        projectId={id!}
+                        onClose={() => setIsChatOpen(false)}
+                    />
+                </div>
             )}
         </div>
     );

@@ -3,13 +3,24 @@
     display: flex;
     flex-direction: column;
     padding: 2rem;
-    color: var(--text-inverse);
+    color: var(--text);
+    position: relative;
+    overflow: hidden;
+}
+
+.board-chat-sidebar {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    box-shadow: -4px 0 12px rgba(0, 0, 0, 0.1);
 }
 
 .breadcrumb {
     font-size: 0.85rem;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--text-subtle);
     margin-bottom: 1.5rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -17,7 +28,7 @@
 }
 
 .breadcrumb:hover {
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--primary);
 }
 
 .board-header {
@@ -30,7 +41,7 @@
 .board-header h1 {
     font-size: 2.25rem;
     font-weight: 800;
-    color: var(--text-inverse);
+    color: var(--text);
     letter-spacing: -0.02em;
 }
 
@@ -45,18 +56,16 @@
     align-items: center;
     gap: 0.75rem;
     padding: 0.6rem 1rem;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(5px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: white;
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
     width: 280px;
     transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
 }
 
 .search-box:focus-within {
-    background: rgba(255, 255, 255, 0.18);
-    border-color: rgba(255, 255, 255, 0.4);
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.1);
     width: 320px;
 }
 
@@ -66,30 +75,30 @@
     outline: none;
     font-size: 0.9rem;
     width: 100%;
-    color: white;
+    color: var(--text);
 }
 
 .search-box input::placeholder {
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-subtle);
 }
 
 .search-box svg {
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--text-subtle);
 }
 
 .icon-btn {
     padding: 0.6rem;
     border-radius: var(--radius-md);
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--text-subtle);
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.1);
+    background: transparent;
     transition: all 0.2s;
 }
 
 .icon-btn:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-    color: white;
+    background-color: rgba(9, 30, 66, 0.08);
+    color: var(--text);
     transform: translateY(-1px);
 }

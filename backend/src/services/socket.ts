@@ -1,5 +1,6 @@
 import { Server } from 'socket.io';
 import { Server as HttpServer } from 'http';
+import prisma from '../config/db';
 
 let io: Server;
 
@@ -29,6 +30,37 @@ export const initSocket = (server: HttpServer) => {
         socket.on('joinUser', (userId: string) => {
             socket.join(`user_${userId}`);
             console.log(`Socket ${socket.id} joined user_${userId}`);
+        });
+
+        socket.on('sendMessage', async ({ projectId, content, authorId }: { projectId: string, content: string, authorId: string }) => {
+            try {
+                // Verify membership
+                const member = await prisma.member.findUnique({
+                    where: { userId_projectId: { userId: authorId, projectId } }
+                });
+
+                if (!member) {
+                    console.error('User not member of project');
+                    return;
+                }
+
+                const message = await prisma.chatMessage.create({
+                    data: {
+                        content,
+                        projectId,
+                        authorId
+                    },
+                    include: {
+                        author: {
+                            select: { id: true, name: true, avatarUrl: true }
+                        }
+                    }
+                });
+
+                io.to(`project_${projectId}`).emit('newMessage', message);
+            } catch (error) {
+                console.error('Send message error:', error);
+            }
         });
 
         socket.on('disconnect', () => {

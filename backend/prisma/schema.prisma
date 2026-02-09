@@ -27,6 +27,7 @@ model User {
   comments  Comment[]
   invitations Invitation[]
   notifications Notification[] @relation("UserNotifications")
+  chatMessages  ChatMessage[]  @relation("ChatAuthor")
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   settings  UserSetting?
@@ -67,9 +68,20 @@ model Project {
   issues      Issue[]
   sprints     Sprint[]
   invitations Invitation[]
+  chatMessages ChatMessage[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   issueCount  Int      @default(0)
+}
+
+model ChatMessage {
+  id        String   @id @default(uuid())
+  content   String
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id])
+  authorId  String
+  author    User     @relation("ChatAuthor", fields: [authorId], references: [id])
+  createdAt DateTime @default(now())
 }
 
 model Member {

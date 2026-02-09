@@ -13,16 +13,10 @@
     gap: 0.5rem;
 }
 
-.filter-group label {
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    font-weight: 500;
-}
-
 .filter-group select {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    color: var(--text-primary);
+    background: white;
+    border: 1px solid var(--border);
+    color: var(--text);
     padding: 0.25rem 0.5rem;
     border-radius: 4px;
     font-size: 0.85rem;

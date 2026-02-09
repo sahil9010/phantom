@@ -1,9 +1,16 @@
 import { Resend } from 'resend';
 
 // Initialize Resend with API Key from environment variables
-const resend = new Resend(process.env.RESEND_API_KEY);
+const apiKey = process.env.RESEND_API_KEY;
+const resend = apiKey ? new Resend(apiKey) : null;
 
 export const sendEmail = async (to: string, subject: string, html: string) => {
+    if (!resend) {
+        console.log('[DEV] Email Service Mocked (No API Key). Email would be sent to:', to);
+        console.log('[DEV] Subject:', subject);
+        return { id: 'mock-email-id' };
+    }
+
     try {
         const { data, error } = await resend.emails.send({
             from: 'Phantom Projects <onboarding@resend.dev>', // Resend's default test sender
