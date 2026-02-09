@@ -30,11 +30,27 @@
 
     .board-actions {
         width: 100%;
-        flex-wrap: wrap;
-        gap: 0.75rem;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
     }
 
     .search-box {
+        grid-column: 1 / -1;
+    }
+
+    .board-header .btn-secondary,
+    .board-header .btn-primary {
+        padding: 0.5rem;
+        font-size: 0.8rem;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .board-actions .icon-btn {
+        background: #f4f5f7;
+        border: 1px solid var(--border);
+        justify-content: center;
         width: 100%;
     }
 
@@ -132,4 +148,9 @@
     background-color: rgba(9, 30, 66, 0.08);
     color: var(--text);
     transform: translateY(-1px);
+}
+.icon-btn.active {
+    background-color: rgba(0, 82, 204, 0.1);
+    color: var(--primary);
+    border-color: var(--primary);
 }
