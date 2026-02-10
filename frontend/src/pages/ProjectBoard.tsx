@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Search, Filter, MoreHorizontal, Users, UserPlus, MessageSquare } from 'lucide-react';
-import api from '../services/api';
+import { Search, Users, UserPlus, MessageSquare, MoreHorizontal } from 'lucide-react';
 import KanbanBoard from '../components/board/KanbanBoard';
 import IssueDetails from '../components/issue/IssueDetails';
 import CreateIssueModal from '../components/issue/CreateIssueModal';
@@ -9,116 +8,53 @@ import AddMemberModal from '../components/project/AddMemberModal';
 import FilterBar from '../components/board/FilterBar';
 import CreateSprintModal from '../components/project/CreateSprintModal';
 import ProjectChat from '../components/project/ProjectChat';
+import SprintCard from '../components/project/SprintCard';
 import './ProjectBoard.css';
-import socket from '../services/socket';
+import { useProjectBoard } from '../hooks/useProjectBoard';
+import api from '../services/api';
 
 const ProjectBoard: React.FC = () => {
-    const { id } = useParams();
-    const [project, setProject] = useState<any>(null);
-    const [issues, setIssues] = useState<any[]>([]);
-    const [sprints, setSprints] = useState<any[]>([]);
+    const { id } = useParams<{ id: string }>();
+    const navigate = useNavigate();
+
+    const {
+        project, issues, setIssues, sprints, loading,
+        filters, setFilters,
+        searchQuery, setSearchQuery,
+        view, setView,
+        refreshIssues, refreshSprints, refreshProject
+    } = useProjectBoard(id);
+
     const [selectedIssueId, setSelectedIssueId] = useState<string | null>(null);
     const [isCreatingIssue, setIsCreatingIssue] = useState<{ status: string } | null>(null);
     const [isManagingMembers, setIsManagingMembers] = useState(false);
     const [isCreatingSprint, setIsCreatingSprint] = useState(false);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [filters, setFilters] = useState<any>({});
-    const [view, setView] = useState<'board' | 'backlog'>('board');
     const [isChatOpen, setIsChatOpen] = useState(false);
-    const navigate = useNavigate();
 
-    const fetchIssues = async () => {
-        try {
-            const queryParams = new URLSearchParams({
-                ...filters,
-                search: searchQuery
-            });
+    const activeSprint = useMemo(() => sprints.find(s => s.status === 'active'), [sprints]);
 
-            // If viewing board, default to active sprint or no sprint filter if we want all?
-            // Usually Board = Active Sprint. Backlog = No Sprint (sprintId=null).
-            // For now, let's keep it simple: Filter Bar controls manual filtering. 
-            // BUT, if in Backlog view, force sprintId=null.
-
-            if (view === 'backlog') {
-                queryParams.set('sprintId', 'null');
-            } else {
-                // Try to find active sprint
-                const activeSprint = sprints.find((s: any) => s.status === 'active');
-                if (activeSprint) {
-                    queryParams.set('sprintId', activeSprint.id);
-                }
-                // If no active sprint, maybe show everything or just empty board? 
-                // Let's not restrict if no active sprint found for now to avoid confusion, or restriction handled by user manually selecting sprint filter?
-            }
-
-            const { data: issuesData } = await api.get(`/issues/project/${id}?${queryParams.toString()}`);
-            setIssues(issuesData);
-        } catch (err) {
-            console.error('Failed to fetch issues');
-        }
-    };
-
-    const fetchSprints = async () => {
-        try {
-            const { data } = await api.get(`/projects/${id}/sprints`);
-            setSprints(data);
-        } catch (error) {
-            console.error('Failed to fetch sprints');
-        }
-    };
-
-    useEffect(() => {
-        const fetchProject = async () => {
+    const handleCompleteSprint = useCallback(async () => {
+        if (!activeSprint) return;
+        if (window.confirm(`Complete sprint ${activeSprint.name}? Incomplete issues will move to backlog.`)) {
             try {
-                const { data: projectData } = await api.get(`/projects/${id}`);
-                setProject(projectData);
-            } catch (err) {
-                console.error('Failed to fetch project details');
+                await api.patch(`/projects/sprints/${activeSprint.id}`, { status: 'completed' });
+                refreshSprints();
+            } catch (e) {
+                console.error(e);
             }
-        };
+        }
+    }, [activeSprint, refreshSprints]);
 
-        fetchProject();
-        fetchSprints();
+    const handleStartSprint = useCallback(async (sprintId: string) => {
+        try {
+            await api.patch(`/projects/sprints/${sprintId}`, { status: 'active' });
+            refreshSprints();
+        } catch (e) {
+            console.error(e);
+        }
+    }, [refreshSprints]);
 
-        socket.emit('joinProject', id);
-
-        socket.on('issueCreated', (newIssue) => {
-            setIssues(prev => {
-                if (prev.find(i => i.id === newIssue.id)) return prev;
-                return [...prev, newIssue];
-            });
-        });
-
-        socket.on('issueUpdated', (updatedIssue) => {
-            setIssues(prev => prev.map(i => i.id === updatedIssue.id ? updatedIssue : i));
-        });
-
-        socket.on('sprintCreated', (newSprint) => {
-            setSprints(prev => [...prev, newSprint]);
-        });
-
-        socket.on('sprintUpdated', (updatedSprint) => {
-            setSprints(prev => prev.map(s => s.id === updatedSprint.id ? updatedSprint : s));
-        });
-
-        socket.on('sprintDeleted', (sprintId) => {
-            setSprints(prev => prev.filter(s => s.id !== sprintId));
-        });
-
-        return () => {
-            socket.off('issueCreated');
-            socket.off('issueUpdated');
-            socket.off('sprintCreated');
-            socket.off('sprintUpdated');
-            socket.off('sprintDeleted');
-        };
-    }, [id]);
-
-    useEffect(() => {
-        fetchIssues();
-    }, [id, filters, searchQuery, view, sprints.length]); // Re-fetch when context changes
-
-    if (!project) return <div>Loading...</div>;
+    if (loading || !project) return <div className="loading-state">Loading workspace...</div>;
 
     return (
         <div className="project-board">
@@ -127,47 +63,25 @@ const ProjectBoard: React.FC = () => {
             </nav>
 
             <header className="board-header">
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                <div className="header-title-section">
                     <h1>{project.name} board</h1>
-                    {view === 'board' && sprints.find(s => s.status === 'active') && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: 'var(--text-subtle)', fontSize: '0.9rem' }}>
-                            <span style={{ fontWeight: 600, color: 'var(--text)' }}>
-                                {sprints.find(s => s.status === 'active')?.name}
-                            </span>
-                            <button
-                                className="btn-secondary"
-                                style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}
-                                onClick={async () => {
-                                    const s = sprints.find(s => s.status === 'active');
-                                    if (window.confirm(`Complete sprint ${s.name}? Incomplete issues will move to backlog.`)) {
-                                        try {
-                                            await api.patch(`/projects/sprints/${s.id}`, { status: 'completed' });
-                                            fetchSprints();
-                                        } catch (e) { console.error(e); }
-                                    }
-                                }}
-                            >
+                    {view === 'board' && activeSprint && (
+                        <div className="active-sprint-info">
+                            <span className="sprint-name">{activeSprint.name}</span>
+                            <button className="btn-secondary sm" onClick={handleCompleteSprint}>
                                 Complete Sprint
                             </button>
                         </div>
                     )}
                 </div>
+
                 <div className="board-controls">
                     <div className="view-toggle">
-                        <button
-                            className={`toggle-btn ${view === 'board' ? 'active' : ''}`}
-                            onClick={() => setView('board')}
-                        >
-                            Board
-                        </button>
-                        <button
-                            className={`toggle-btn ${view === 'backlog' ? 'active' : ''}`}
-                            onClick={() => setView('backlog')}
-                        >
-                            Backlog
-                        </button>
+                        <button className={`toggle-btn ${view === 'board' ? 'active' : ''}`} onClick={() => setView('board')}>Board</button>
+                        <button className={`toggle-btn ${view === 'backlog' ? 'active' : ''}`} onClick={() => setView('backlog')}>Backlog</button>
                     </div>
                 </div>
+
                 <div className="board-actions">
                     <div className="search-box">
                         <Search size={16} />
@@ -178,15 +92,12 @@ const ProjectBoard: React.FC = () => {
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
-                    {/* <button className="icon-btn"><Filter size={18} /></button> REMOVED generic filter btn */}
-                    <button className="btn-secondary" onClick={() => setIsCreatingSprint(true)}>
-                        Create Sprint
-                    </button>
-                    <button className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem' }} onClick={() => navigate(`/projects/${id}/team`)}>
+                    <button className="btn-secondary" onClick={() => setIsCreatingSprint(true)}>Create Sprint</button>
+                    <button className="btn-secondary icon-text" onClick={() => navigate(`/projects/${id}/team`)}>
                         <Users size={18} />
                         <span>Team</span>
                     </button>
-                    <button className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem' }} onClick={() => setIsManagingMembers(true)}>
+                    <button className="btn-primary icon-text" onClick={() => setIsManagingMembers(true)}>
                         <UserPlus size={18} />
                         <span>Invite</span>
                     </button>
@@ -204,32 +115,11 @@ const ProjectBoard: React.FC = () => {
             />
 
             {view === 'backlog' && sprints.length > 0 && (
-                <div className="sprints-list-container" style={{ marginBottom: '1rem', background: 'white', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border)' }}>
-                    <h3 style={{ fontSize: '1rem', marginBottom: '0.5rem', color: 'var(--text)' }}>Planned Sprints</h3>
-                    <div className="sprints-grid" style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))' }}>
-                        {sprints.map((s: any) => (
-                            <div key={s.id} className="sprint-card" style={{ padding: '1rem', border: '1px solid var(--border)', borderRadius: '6px', background: 'var(--surface-raised)' }}>
-                                <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>{s.name}</div>
-                                <div style={{ fontSize: '0.8rem', color: 'var(--text-subtle)', marginBottom: '0.5rem' }}>
-                                    {s.status.toUpperCase()} • {s.startDate ? new Date(s.startDate).toLocaleDateString() : 'No Date'}
-                                </div>
-                                {s.status === 'planned' && (
-                                    <button
-                                        className="btn-primary"
-                                        style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
-                                        onClick={async () => {
-                                            if (window.confirm(`Start sprint ${s.name}?`)) {
-                                                try {
-                                                    await api.patch(`/projects/sprints/${s.id}`, { status: 'active' });
-                                                    fetchSprints();
-                                                } catch (e) { console.error(e); }
-                                            }
-                                        }}
-                                    >
-                                        Start Sprint
-                                    </button>
-                                )}
-                            </div>
+                <div className="sprints-list-container">
+                    <h3>Planned Sprints</h3>
+                    <div className="sprints-grid">
+                        {sprints.map(s => (
+                            <SprintCard key={s.id} sprint={s} onStart={handleStartSprint} />
                         ))}
                     </div>
                 </div>
@@ -243,7 +133,7 @@ const ProjectBoard: React.FC = () => {
                 projectKey={project.key}
                 onSelectIssue={setSelectedIssueId}
                 onStartCreateIssue={(status) => setIsCreatingIssue({ status })}
-                onUpdate={fetchIssues}
+                onUpdate={refreshIssues}
             />
 
             {selectedIssueId && (
@@ -251,7 +141,7 @@ const ProjectBoard: React.FC = () => {
                     issueId={selectedIssueId}
                     members={project.members || []}
                     onClose={() => setSelectedIssueId(null)}
-                    onUpdate={fetchIssues}
+                    onUpdate={refreshIssues}
                 />
             )}
 
@@ -259,11 +149,11 @@ const ProjectBoard: React.FC = () => {
                 <CreateIssueModal
                     projectId={id!}
                     status={isCreatingIssue.status}
-                    members={project.members || []}
+                    members={(project as any).members || []}
                     sprints={sprints}
                     onClose={() => setIsCreatingIssue(null)}
                     onCreated={(newIssue) => {
-                        setIssues(prev => [...prev, newIssue]);
+                        refreshIssues();
                         setSelectedIssueId(newIssue.id);
                     }}
                 />
@@ -272,20 +162,9 @@ const ProjectBoard: React.FC = () => {
             {isManagingMembers && (
                 <AddMemberModal
                     projectId={id!}
-                    existingMembers={project.members || []}
+                    existingMembers={(project as any).members || []}
                     onClose={() => setIsManagingMembers(false)}
-                    onMemberAdded={() => {
-                        // Refresh project details to show new member
-                        const fetchProject = async () => {
-                            try {
-                                const { data: projectData } = await api.get(`/projects/${id}`);
-                                setProject(projectData);
-                            } catch (err) {
-                                console.error('Failed to fetch project details');
-                            }
-                        };
-                        fetchProject();
-                    }}
+                    onMemberAdded={refreshProject}
                 />
             )}
 
@@ -293,18 +172,13 @@ const ProjectBoard: React.FC = () => {
                 <CreateSprintModal
                     projectId={id!}
                     onClose={() => setIsCreatingSprint(false)}
-                    onCreated={() => {
-                        fetchSprints();
-                    }}
+                    onCreated={refreshSprints}
                 />
             )}
 
             {isChatOpen && (
                 <div className="board-chat-sidebar">
-                    <ProjectChat
-                        projectId={id!}
-                        onClose={() => setIsChatOpen(false)}
-                    />
+                    <ProjectChat projectId={id!} onClose={() => setIsChatOpen(false)} />
                 </div>
             )}
         </div>

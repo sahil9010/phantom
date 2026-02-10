@@ -150,3 +150,81 @@
         width: 100% !important;
     }
 }
+
+/* Sprint Management Styles */
+.sprints-list-container {
+    margin-bottom: 2rem;
+    background: white;
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+}
+
+.sprints-list-container h3 {
+    font-size: 0.9rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-subtle);
+    margin-bottom: 1.5rem;
+}
+
+.sprints-grid {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.sprint-card {
+    padding: 1.5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface-raised);
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.sprint-card:hover {
+    border-color: var(--primary);
+    background: white;
+    box-shadow: var(--shadow-md);
+}
+
+.sprint-card .name {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--text);
+}
+
+.sprint-card .meta {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-subtle);
+}
+
+.sprint-badge {
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    display: inline-block;
+}
+
+.sprint-badge.active {
+    background: #e0e7ff;
+    color: #3730a3;
+}
+
+.sprint-badge.planned {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.sprint-badge.completed {
+    background: #dcfce7;
+    color: #166534;
+}

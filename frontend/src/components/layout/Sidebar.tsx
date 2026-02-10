@@ -1,12 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { NavLink, useParams, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Trello, ClipboardList, Settings, Users, ChevronDown, ChevronRight, Shield, LogOut } from 'lucide-react';
-import api from '../../services/api';
+import {
+    LayoutDashboard, Trello, ClipboardList, Settings,
+    Users, ChevronDown, ChevronRight, Shield, LogOut
+} from 'lucide-react';
 import SettingsModal from '../settings/SettingsModal';
 import './Sidebar.css';
 import { useAuthStore } from '../../store/authStore';
 import NotificationCenter from './NotificationCenter';
 import GlobalSearch from './GlobalSearch';
+import { useProjects } from '../../hooks/useProjects';
 
 interface SidebarProps {
     isOpen?: boolean;
@@ -15,33 +18,20 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     const { id: projectId } = useParams();
-    const [projects, setProjects] = useState<any[]>([]);
+    const { projects } = useProjects();
     const [isProjectsExpanded, setIsProjectsExpanded] = useState(false);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [isCollapsed, setIsCollapsed] = useState(false);
     const { user, logout } = useAuthStore();
     const navigate = useNavigate();
 
-    const handleLogout = () => {
+    const handleLogout = useCallback(() => {
         logout();
         navigate('/login');
-    };
+    }, [logout, navigate]);
 
-    useEffect(() => {
-        const fetchProjects = async () => {
-            try {
-                const { data } = await api.get('projects');
-                if (Array.isArray(data)) {
-                    setProjects(data);
-                }
-            } catch (err) {
-                console.error('Failed to fetch sidebar projects');
-            }
-        };
-        fetchProjects();
-    }, []);
-
-    const toggleProjects = () => setIsProjectsExpanded(!isProjectsExpanded);
+    const toggleProjects = useCallback(() => setIsProjectsExpanded(prev => !prev), []);
+    const toggleCollapse = useCallback(() => setIsCollapsed(prev => !prev), []);
 
     return (
         <aside className={`sidebar ${isOpen ? 'open' : ''} ${isCollapsed ? 'collapsed' : ''}`}>
@@ -51,10 +41,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                     {!isCollapsed && <span>Phantom</span>}
                 </div>
                 {!isCollapsed && <NotificationCenter />}
-                <button
-                    className="collapse-btn"
-                    onClick={() => setIsCollapsed(!isCollapsed)}
-                >
+                <button className="collapse-btn" onClick={toggleCollapse}>
                     <ChevronRight size={16} className={isCollapsed ? '' : 'rotated'} />
                 </button>
             </div>
@@ -68,10 +55,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                         {!isCollapsed && <span>Dashboard</span>}
                     </NavLink>
 
-                    <div
-                        className={`nav-dropdown-toggle ${isProjectsExpanded ? 'expanded' : ''}`}
-                        onClick={toggleProjects}
-                    >
+                    <div className={`nav-dropdown-toggle ${isProjectsExpanded ? 'expanded' : ''}`} onClick={toggleProjects}>
                         <div className="toggle-content">
                             <ClipboardList size={20} />
                             {!isCollapsed && <span>Projects</span>}
@@ -115,24 +99,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                         to={projectId ? `/projects/${projectId}/team` : "/teams"}
                         className={({ isActive }) => (isActive ? 'active' : '') + (!projectId ? ' disabled-nav' : '')}
                         onClick={(e) => {
-                            if (!projectId) {
-                                e.preventDefault();
-                            } else {
-                                onClose?.();
-                            }
+                            if (!projectId) e.preventDefault();
+                            else onClose?.();
                         }}
                     >
                         <Users size={20} />
                         {!isCollapsed && <span>Team Settings</span>}
                     </NavLink>
 
-                    <div
-                        className={`nav-item ${isSettingsOpen ? 'active' : ''}`}
-                        onClick={() => {
-                            setIsSettingsOpen(true);
-                            onClose?.();
-                        }}
-                    >
+                    <div className={`nav-item ${isSettingsOpen ? 'active' : ''}`} onClick={() => { setIsSettingsOpen(true); onClose?.(); }}>
                         <Settings size={20} />
                         {!isCollapsed && <span>Preferences</span>}
                     </div>
