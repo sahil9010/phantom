@@ -57,6 +57,7 @@ const IssueCard: React.FC<IssueCardProps> = ({ issue, members, projectKey, onSel
             style={style}
             {...attributes}
             {...listeners}
+            data-priority={issue.priority}
             onClick={() => onSelect(issue.id)}
         >
             <p className="issue-title">{issue.title}</p>

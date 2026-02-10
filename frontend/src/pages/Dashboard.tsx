@@ -87,8 +87,32 @@ const Dashboard: React.FC = () => {
                         className="project-card"
                         onClick={() => navigate(`/projects/${project.id}`)}
                     >
-                        <div className="project-icon">
-                            <Layout size={24} color="white" />
+                        <div className="project-top">
+                            <div className="project-icon">
+                                <Layout size={24} />
+                            </div>
+                            {user?.role === 'admin' && (
+                                <div className="project-actions">
+                                    <button
+                                        className="edit-project-btn"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setEditingProjectId(project.id);
+                                            setEditName(project.name);
+                                        }}
+                                        title="Edit Project"
+                                    >
+                                        <Edit2 size={16} />
+                                    </button>
+                                    <button
+                                        className="delete-project-btn"
+                                        onClick={(e) => handleDeleteProject(e, project.id, project.name)}
+                                        title="Delete Project"
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
+                                </div>
+                            )}
                         </div>
                         <div className="project-info">
                             {editingProjectId === project.id ? (
@@ -111,28 +135,6 @@ const Dashboard: React.FC = () => {
                                 </>
                             )}
                         </div>
-                        {user?.role === 'admin' && (
-                            <div className="project-actions">
-                                <button
-                                    className="edit-project-btn"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setEditingProjectId(project.id);
-                                        setEditName(project.name);
-                                    }}
-                                    title="Edit Project"
-                                >
-                                    <Edit2 size={16} />
-                                </button>
-                                <button
-                                    className="delete-project-btn"
-                                    onClick={(e) => handleDeleteProject(e, project.id, project.name)}
-                                    title="Delete Project"
-                                >
-                                    <Trash2 size={16} />
-                                </button>
-                            </div>
-                        )}
                     </div>
                 ))}
 

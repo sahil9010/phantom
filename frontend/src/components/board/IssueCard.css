@@ -1,45 +1,34 @@
 .issue-card {
     background: var(--surface);
-    padding: 1rem;
+    padding: 1.25rem;
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-sm);
     cursor: grab;
-    border: 1px solid transparent;
-    transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+    border: 1px solid var(--border);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     position: relative;
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    min-height: 80px;
-    touch-action: none;
-    user-select: none;
+    min-height: 100px;
 }
 
 .issue-card:hover {
     box-shadow: var(--shadow-md);
-    border-color: rgba(9, 30, 66, 0.13);
-    transform: translateY(-2px);
+    border-color: var(--primary);
+    transform: translateY(-4px) scale(1.01);
 }
 
 .issue-card:active {
     cursor: grabbing;
-    transform: scale(1.01);
-}
-
-.issue-card * {
-    border: none !important;
-    outline: none !important;
-}
-
-.issue-card *:focus {
-    outline: none !important;
+    box-shadow: var(--shadow-lg);
 }
 
 .issue-title {
-    font-size: 0.95rem;
+    font-size: 1rem;
     font-weight: 600;
     color: var(--text);
-    line-height: 1.4;
+    line-height: 1.5;
     margin: 0;
     flex: 1;
 }
@@ -48,105 +37,103 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    /* Removed border and padding to merge with card body */
+    margin-top: 0.5rem;
 }
 
 .issue-meta {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 1rem;
 }
 
 .issue-type {
+    display: flex;
+    align-items: center;
     font-size: 0.7rem;
     font-weight: 800;
-    /* Bold as requested */
     text-transform: uppercase;
     color: var(--text-subtle);
-    background-color: transparent;
-    padding: 0;
-    margin-top: 1px;
-    border-radius: 0;
     letter-spacing: 0.05em;
-    border: none;
-    outline: none;
-    user-select: none;
-}
-
-.issue-card.show-menu {
-    z-index: 100 !important;
-}
-
-.issue-assignee-container {
-    position: relative;
 }
 
 .issue-assignee {
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    background: var(--grad-primary);
     color: white;
-    font-size: 0.7rem;
+    font-size: 0.8rem;
     display: flex;
     justify-content: center;
     align-items: center;
     font-weight: 700;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-sm);
     border: 2px solid white;
-    cursor: pointer;
-    transition: transform 0.2s ease;
+    transition: all 0.2s ease;
 }
 
 .issue-assignee:hover {
-    transform: scale(1.1);
+    transform: scale(1.2);
+    box-shadow: var(--shadow-md);
+    z-index: 10;
+}
+
+/* Priority Indicators */
+.issue-card[data-priority="high"] {
+    border-left: 4px solid var(--error);
+}
+
+.issue-card[data-priority="medium"] {
+    border-left: 4px solid var(--warning);
+}
+
+.issue-card[data-priority="low"] {
+    border-left: 4px solid var(--success);
+}
+
+.issue-card[data-priority="critical"] {
+    border-left: 4px solid #7f1d1d;
 }
 
 .assignee-dropdown-menu {
     position: absolute;
-    top: calc(100% + 5px);
+    bottom: calc(100% + 10px);
     right: 0;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--shadow-xl);
     z-index: 1000;
-    min-width: 160px;
-    padding: 0.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
+    min-width: 200px;
+    padding: 0.75rem;
+    animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes popIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
 }
 
 .dropdown-item {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    padding: 0.5rem;
+    gap: 1rem;
+    padding: 0.6rem 0.8rem;
     border-radius: var(--radius-sm);
     cursor: pointer;
-    transition: background 0.2s;
-    font-size: 0.85rem;
-    color: var(--text);
+    transition: all 0.2s;
+    font-size: 0.9rem;
+    font-weight: 500;
 }
 
 .dropdown-item:hover {
-    background: rgba(9, 30, 66, 0.08);
-}
-
-.user-avatar-tiny {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: var(--primary);
-    color: white;
-    font-size: 0.6rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-}
-
-.user-avatar-tiny.unassigned {
-    background: var(--text-subtle);
+    background-color: var(--surface-raised);
+    color: var(--primary);
 }
