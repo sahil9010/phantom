@@ -6,6 +6,7 @@ import SettingsModal from '../settings/SettingsModal';
 import './Sidebar.css';
 import { useAuthStore } from '../../store/authStore';
 import NotificationCenter from './NotificationCenter';
+import GlobalSearch from './GlobalSearch';
 
 interface SidebarProps {
     isOpen?: boolean;
