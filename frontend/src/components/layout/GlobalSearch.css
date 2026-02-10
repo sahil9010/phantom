@@ -1,0 +1,136 @@
+.global-search-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-md);
+    color: var(--text-subtle);
+    font-size: 0.85rem;
+    width: 200px;
+    margin-bottom: 2rem;
+    transition: all 0.2s ease;
+}
+
+.global-search-trigger:hover {
+    border-color: var(--primary);
+    background: white;
+    color: var(--text);
+}
+
+.search-shortcut {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    background: white;
+    border: 1px solid var(--border);
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 700;
+}
+
+.global-search-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(2, 6, 23, 0.4);
+    backdrop-filter: blur(8px);
+    z-index: 3000;
+    display: flex;
+    justify-content: center;
+    padding-top: 10vh;
+}
+
+.global-search-modal {
+    width: 100%;
+    max-width: 600px;
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    overflow: hidden;
+    height: fit-content;
+    animation: modal-pop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.search-input-wrapper {
+    display: flex;
+    align-items: center;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    gap: 1rem;
+}
+
+.search-icon {
+    color: var(--primary);
+}
+
+.search-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 1.1rem;
+    color: var(--text);
+    background: transparent;
+}
+
+.search-results {
+    padding: 1rem;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.search-section {
+    margin-bottom: 1.5rem;
+}
+
+.search-section label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-subtle);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 0 0.75rem;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.search-item {
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md);
+    font-size: 0.95rem;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.search-item:hover {
+    background: var(--surface-raised);
+    color: var(--primary);
+    transform: translateX(4px);
+}
+
+.search-footer {
+    padding: 0.75rem 1.5rem;
+    background: var(--surface-raised);
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.75rem;
+    color: var(--text-subtle);
+    border-top: 1px solid var(--border);
+}
+
+@keyframes modal-pop {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}

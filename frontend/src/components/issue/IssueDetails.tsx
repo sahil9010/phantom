@@ -204,113 +204,86 @@ const IssueDetails: React.FC<IssueDetailsProps> = ({ issueId, members, onClose, 
     if (!issue) return null;
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-content landscape-modal" onClick={e => e.stopPropagation()}>
-                <header className="modal-header">
-                    <span className="issue-key">ISSUE-{issue.id.slice(0, 4).toUpperCase()}</span>
+        <div className="drawer-overlay" onClick={onClose}>
+            <div className="drawer-content" onClick={e => e.stopPropagation()}>
+                <header className="drawer-header">
+                    <div className="issue-meta-header">
+                        <span className="issue-key">ISSUE-{issue.id.slice(0, 4).toUpperCase()}</span>
+                        <div className={`badge-status ${issue.status}`}>{issue.status.replace('_', ' ')}</div>
+                    </div>
                     <button className="close-btn" onClick={onClose}><X size={20} /></button>
                 </header>
 
-                <div className="modal-body">
-                    <div className="main-content">
-                        <h2 contentEditable onBlur={(e) => handleUpdate('title', e.target.innerText)}>
+                <div className="drawer-body">
+                    <div className="drawer-main">
+                        <h2
+                            className="issue-title-field"
+                            contentEditable
+                            onBlur={(e) => handleUpdate('title', e.currentTarget.innerText)}
+                        >
                             {issue.title}
                         </h2>
 
-                        <div className="description-section">
-                            <label>Description</label>
+                        <div className="section">
+                            <label className="section-label">Description</label>
                             <textarea
+                                className="description-area"
                                 value={issue.description || ''}
                                 onChange={(e) => setIssue({ ...issue, description: e.target.value })}
                                 onBlur={(e) => handleUpdate('description', e.target.value)}
-                                placeholder="Add a description..."
+                                placeholder="What's this task about?"
                             />
                         </div>
 
-                        <div className="attachments-section">
-                            <label>Attachments & Images</label>
-                            <div className="attachment-grid">
-                                {JSON.parse(issue.attachments || '[]').map((url: string, idx: number) => (
-                                    <div key={idx} className="attachment-preview">
-                                        <img src={url} alt="attachment" onClick={() => window.open(url, '_blank')} />
-                                    </div>
-                                ))}
-                            </div>
-                            <div className="attachment-input">
-                                <input
-                                    type="text"
-                                    placeholder="Paste image URL..."
-                                    value={newAttachmentUrl}
-                                    onChange={(e) => setNewAttachmentUrl(e.target.value)}
-                                    onKeyDown={(e) => e.key === 'Enter' && handleAddAttachment()}
-                                />
-                                <button className="add-btn" onClick={handleAddAttachment}>Add</button>
-                            </div>
-                        </div>
+                        <div className="activity-feed">
+                            <label className="section-label">Activity</label>
 
-                        <div className="comments-section">
-                            <h3>Comments</h3>
-                            <div className="comment-input-wrapper" style={{ position: 'relative' }}>
-                                {replyToId && (
-                                    <div className="replying-banner">
-                                        <span>Replying to {replyToName}</span>
-                                        <button onClick={cancelReply}><X size={12} /></button>
+                            <div className="comment-input-wrapper" style={{ marginBottom: '2rem' }}>
+                                <div className="comment-input" style={{ display: 'flex', gap: '0.75rem' }}>
+                                    <div className="user-avatar" style={{ width: '32px', height: '32px' }}>
+                                        {user?.name?.charAt(0).toUpperCase()}
                                     </div>
-                                )}
-
-                                {showMentions && (
-                                    <div className="mention-dropdown">
-                                        {members
-                                            .filter(m => m.user.name.toLowerCase().includes(mentionQuery.toLowerCase()))
-                                            .map(m => (
-                                                <div
-                                                    key={m.user.id}
-                                                    className="mention-option"
-                                                    onClick={() => insertMention(m.user.name)}
-                                                >
-                                                    {m.user.name}
-                                                </div>
-                                            ))}
-                                    </div>
-                                )}
-
-                                <div className="comment-input">
                                     <input
                                         id="comment-input"
                                         type="text"
-                                        placeholder={replyToId ? "Write a reply..." : "Add a comment... (use @ to mention)"}
+                                        placeholder="Write a comment..."
                                         value={comment}
                                         onChange={handleCommentChange}
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter') handleAddComment();
-                                        }}
-                                        autoComplete="off"
+                                        onKeyDown={(e) => e.key === 'Enter' && handleAddComment()}
+                                        style={{ border: 'none', background: 'var(--surface-raised)', borderRadius: '20px', padding: '0.5rem 1rem', flex: 1 }}
                                     />
-                                    <button onClick={handleAddComment}><Send size={16} /></button>
+                                    <button onClick={handleAddComment} className="btn-primary" style={{ padding: '0.5rem' }}>
+                                        <Send size={16} />
+                                    </button>
                                 </div>
                             </div>
 
-                            <div className="comments-list">
+                            <div className="timeline">
                                 {rootComments.map((c: any) => (
-                                    <CommentItem
-                                        key={c.id}
-                                        comment={c}
-                                        onReply={handleReply}
-                                        onDelete={handleDeleteComment}
-                                        onEdit={(id, content) => {
-                                            setEditingCommentId(id);
-                                            setEditContent(content);
-                                        }}
-                                    />
+                                    <div key={c.id} className="timeline-item">
+                                        <div className="timeline-dot comment"></div>
+                                        <div className="timeline-content">
+                                            <div className="timeline-header">
+                                                <span className="timeline-author">{c.author?.name}</span>
+                                                <span className="timeline-date">{new Date(c.createdAt).toLocaleDateString()}</span>
+                                            </div>
+                                            <div className="timeline-body">{c.content}</div>
+                                        </div>
+                                    </div>
                                 ))}
                             </div>
                         </div>
                     </div>
 
-                    <aside className="side-content">
+                    <aside className="drawer-side">
                         <div className="field-group">
-                            <label>Status</label>
-                            <select value={issue.status} onChange={(e) => handleUpdate('status', e.target.value)}>
+                            <label className="section-label">Status</label>
+                            <select
+                                className="btn-secondary"
+                                style={{ width: '100%' }}
+                                value={issue.status}
+                                onChange={(e) => handleUpdate('status', e.target.value)}
+                            >
                                 <option value="todo">To Do</option>
                                 <option value="in_progress">In Progress</option>
                                 <option value="review">Review</option>
@@ -318,9 +291,14 @@ const IssueDetails: React.FC<IssueDetailsProps> = ({ issueId, members, onClose, 
                             </select>
                         </div>
 
-                        <div className="field-group">
-                            <label>Priority</label>
-                            <select value={issue.priority} onChange={(e) => handleUpdate('priority', e.target.value)}>
+                        <div className="field-group" style={{ marginTop: '2rem' }}>
+                            <label className="section-label">Priority</label>
+                            <select
+                                className="btn-secondary"
+                                style={{ width: '100%' }}
+                                value={issue.priority}
+                                onChange={(e) => handleUpdate('priority', e.target.value)}
+                            >
                                 <option value="low">Low</option>
                                 <option value="medium">Medium</option>
                                 <option value="high">High</option>
@@ -328,24 +306,26 @@ const IssueDetails: React.FC<IssueDetailsProps> = ({ issueId, members, onClose, 
                             </select>
                         </div>
 
-                        <div className="meta-info">
-                            <p><span>Reporter</span> {issue.reporter?.name}</p>
-                            <div className="field-group" style={{ marginTop: '1rem' }}>
-                                <label>Assignee</label>
-                                <select
-                                    className="premium-input-sm"
-                                    style={{ width: '100%', background: 'var(--surface-raised)', color: 'var(--text)' }}
-                                    value={issue.assigneeId || ''}
-                                    onChange={(e) => handleUpdate('assigneeId', e.target.value || null)}
-                                >
-                                    <option value="">Unassigned</option>
-                                    {members.map((m: any) => (
-                                        <option key={m.user.id} value={m.user.id}>
-                                            {m.user.name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
+                        <div className="field-group" style={{ marginTop: '2rem' }}>
+                            <label className="section-label">Assignee</label>
+                            <select
+                                className="btn-secondary"
+                                style={{ width: '100%' }}
+                                value={issue.assigneeId || ''}
+                                onChange={(e) => handleUpdate('assigneeId', e.target.value || null)}
+                            >
+                                <option value="">Unassigned</option>
+                                {members.map((m: any) => (
+                                    <option key={m.user.id} value={m.user.id}>
+                                        {m.user.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="meta-info" style={{ marginTop: 'auto', paddingTop: '2rem', borderTop: '1px solid var(--border)', fontSize: '0.8rem', color: 'var(--text-subtle)' }}>
+                            <p>Created: {new Date(issue.createdAt).toLocaleDateString()}</p>
+                            <p>Reporter: {issue.reporter?.name}</p>
                         </div>
                     </aside>
                 </div>

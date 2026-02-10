@@ -1,82 +1,63 @@
 .members-page {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem;
+    width: 100%;
 }
 
 .members-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
 }
 
 .members-header h1 {
-    font-size: 2rem;
+    font-size: 2.2rem;
     font-weight: 800;
     color: var(--text);
+    letter-spacing: -0.04em;
 }
 
 .members-table-container {
-    background: var(--surface);
-    border-radius: var(--radius-lg);
+    background: white;
     border: 1px solid var(--border);
-    overflow: hidden;
+    border-radius: var(--radius-lg);
     box-shadow: var(--shadow-sm);
+    overflow: hidden;
 }
 
 .members-table {
     width: 100%;
     border-collapse: collapse;
+    text-align: left;
 }
 
 .members-table th {
-    text-align: left;
-    padding: 1rem 2rem;
     background: var(--surface-raised);
+    padding: 1rem 1.5rem;
     font-size: 0.75rem;
-    font-weight: 700;
+    font-weight: 800;
     color: var(--text-subtle);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.1em;
+    position: sticky;
+    top: 0;
+    z-index: 10;
     border-bottom: 1px solid var(--border);
 }
 
 .members-table td {
-    padding: 1.25rem 2rem;
+    padding: 1.25rem 1.5rem;
     border-bottom: 1px solid var(--border);
+    font-size: 0.95rem;
+    color: var(--text);
     vertical-align: middle;
-    transition: background 0.2s ease;
-}
-
-.members-table tbody tr {
-    transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
-    position: relative;
-}
-
-.members-table tbody tr::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background: var(--primary);
-    transform: scaleY(0);
-    transition: transform 0.2s ease;
-}
-
-.members-table tbody tr:hover {
-    background-color: var(--surface-raised);
-    transform: translateX(4px);
-}
-
-.members-table tbody tr:hover::before {
-    transform: scaleY(1);
 }
 
 .members-table tr:last-child td {
     border-bottom: none;
+}
+
+.members-table tr:hover td {
+    background-color: #f8fafc;
 }
 
 .user-cell {
@@ -86,55 +67,70 @@
 }
 
 .user-avatar-small {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
+    background: var(--grad-primary);
+    color: white;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
     font-weight: 700;
-    font-size: 0.9rem;
-}
-
-.user-name {
-    font-weight: 600;
-    color: var(--text);
-    display: block;
-}
-
-.user-email {
-    font-size: 0.85rem;
-    color: var(--text-subtle);
+    font-size: 0.8rem;
 }
 
 .role-badge {
-    display: inline-block;
     padding: 0.25rem 0.75rem;
     border-radius: 20px;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
+    text-transform: capitalize;
 }
 
 .role-admin {
-    background: rgba(255, 171, 0, 0.1);
-    color: #ffab00;
+    background: #fee2e2;
+    color: #991b1b;
 }
 
 .role-project-manager {
-    background: rgba(0, 184, 217, 0.1);
-    color: #00b8d9;
+    background: #e0e7ff;
+    color: #3730a3;
 }
 
 .role-contributor {
-    background: rgba(54, 179, 126, 0.1);
-    color: #36b77e;
+    background: #f1f5f9;
+    color: #475569;
 }
 
-.join-date {
+.actions-cell {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.actions-cell .icon-btn {
+    padding: 0.5rem;
+    border-radius: 6px;
     color: var(--text-subtle);
-    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.actions-cell .icon-btn:hover {
+    background: var(--surface-raised);
+    color: var(--primary);
+}
+
+.actions-cell .delete-btn:hover {
+    background: #fee2e2;
+    color: var(--error);
+}
+
+.role-select {
+    padding: 0.4rem 0.75rem;
+    border: 1px solid var(--primary);
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    font-weight: 600;
+    outline: none;
+    background: white;
 }

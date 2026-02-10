@@ -63,29 +63,13 @@ const IssueCard: React.FC<IssueCardProps> = ({ issue, members, projectKey, onSel
             <p className="issue-title">{issue.title}</p>
             <div className="issue-footer">
                 <div className="issue-meta">
-                    {getPriorityIcon(issue.priority)}
-                    <span className="issue-type">{projectKey} {issue.serialNumber || '?'}</span>
+                    <span className={`priority-tag ${issue.priority}`}>{issue.priority}</span>
+                    <span className="issue-type" style={{ fontSize: '0.7rem', opacity: 0.6 }}>{projectKey}-{issue.serialNumber || issue.id.slice(0, 3)}</span>
                 </div>
                 <div className="issue-assignee-container">
-                    <div className="issue-assignee" onClick={handleAssigneeClick}>
+                    <div className="issue-assignee-avatar" onClick={handleAssigneeClick}>
                         {issue.assignee?.name?.[0] || 'U'}
                     </div>
-                    {showAssigneeMenu && (
-                        <div className="assignee-dropdown-menu" onClick={(e) => e.stopPropagation()}>
-                            <div className="dropdown-item" onClick={(e) => handleMemberSelect(e, null)}>
-                                <div className="user-avatar-tiny unassigned">U</div>
-                                <span>Unassigned</span>
-                            </div>
-                            {members.map((m: any) => (
-                                <div key={m.userId} className="dropdown-item" onClick={(e) => handleMemberSelect(e, m.userId)}>
-                                    <div className="user-avatar-tiny">
-                                        {m.user?.name?.[0] || 'U'}
-                                    </div>
-                                    <span>{m.user?.name}</span>
-                                </div>
-                            ))}
-                        </div>
-                    )}
                 </div>
             </div>
         </div>

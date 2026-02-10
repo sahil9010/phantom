@@ -5,9 +5,10 @@
 
 .main-content {
     flex: 1;
-    padding: 2rem;
+    padding: 3rem 4rem;
+    background-color: var(--background);
     overflow-x: auto;
-    transition: margin-left 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @media (max-width: 768px) {

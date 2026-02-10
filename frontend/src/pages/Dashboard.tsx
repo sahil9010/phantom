@@ -73,12 +73,33 @@ const Dashboard: React.FC = () => {
     return (
         <div className="dashboard">
             <header className="page-header">
-                <h1>Projects</h1>
-                <button className="primary-btn" onClick={() => setShowCreateModal(true)}>
+                <div className="header-text">
+                    <h1>Active Workspace</h1>
+                    <p className="subtitle">Welcome back! Here's what's happening across your projects.</p>
+                </div>
+                <button className="btn-primary" onClick={() => setShowCreateModal(true)}>
                     <Plus size={18} />
-                    Create Project
+                    <span>New Project</span>
                 </button>
             </header>
+
+            <section className="stats-overview">
+                <div className="stat-card">
+                    <label>Total Active Tasks</label>
+                    <div className="value">42</div>
+                    <div className="trend positive">↑ 12% from last week</div>
+                </div>
+                <div className="stat-card">
+                    <label>Running Projects</label>
+                    <div className="value">{projects.length}</div>
+                    <div className="trend">Across 2 teams</div>
+                </div>
+                <div className="stat-card primary">
+                    <label>Productivity Score</label>
+                    <div className="value">84%</div>
+                    <div className="trend">Top 5% in industry</div>
+                </div>
+            </section>
 
             <div className="project-grid">
                 {projects.map((project: any) => (

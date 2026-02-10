@@ -1,40 +1,43 @@
 :root {
   --primary: #6366f1;
-  /* Modern Indigo */
+  /* Indigo */
   --primary-hover: #4f46e5;
-  --secondary: #8b5cf6;
-  /* Modern Violet */
+  --secondary: #a855f7;
+  /* Purple */
+
+  /* Slate & Gray Scale */
   --background: #f8fafc;
   --surface: #ffffff;
   --surface-raised: #f1f5f9;
-  --text: #0f172a;
+  --text: #020617;
+  /* Deeper Slate */
   --text-inverse: #ffffff;
   --text-subtle: #64748b;
   --border: #e2e8f0;
+
+  /* Semantic Colors */
   --success: #10b981;
   --error: #ef4444;
   --warning: #f59e0b;
   --info: #3b82f6;
 
-  /* Premium Shadows */
+  /* Minimalist Shadows */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.03), 0 4px 6px -4px rgb(0 0 0 / 0.03);
+  --shadow-xl: 0 25px 50px -12px rgb(0 0 0 / 0.1);
 
   --radius-sm: 6px;
-  --radius-md: 12px;
-  --radius-lg: 20px;
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --font-sans: 'Inter', 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
 
-  /* Premium Glassmorphism */
+  /* Glassmorphism */
   --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.4);
+  --glass-border: rgba(255, 255, 255, 0.2);
   --glass-blur: blur(12px);
 
-  /* Gradients */
   --grad-primary: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-  --grad-surface: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
 }
 
 * {
