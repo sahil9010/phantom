@@ -110,17 +110,19 @@ const ProjectChat: React.FC<ProjectChatProps> = ({ projectId, onClose }) => {
                 )}
             </div>
 
-            <form className="chat-input-area" onSubmit={handleSend}>
-                <input
-                    type="text"
-                    placeholder="Type a message..."
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                />
-                <button type="submit" className="send-btn" disabled={!newMessage.trim()}>
-                    <Send size={18} />
-                </button>
-            </form>
+            <div className="chat-input-area">
+                <form onSubmit={handleSend}>
+                    <input
+                        type="text"
+                        placeholder="Type a message..."
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                    />
+                    <button type="submit" className="send-btn" disabled={!newMessage.trim()}>
+                        <Send size={18} />
+                    </button>
+                </form>
+            </div>
         </div>
     );
 };
