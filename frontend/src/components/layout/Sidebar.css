@@ -8,7 +8,8 @@
     padding: 0;
     position: sticky;
     top: 0;
-    z-index: 1000;
+    z-index: 900;
+    /* Lower than dropdowns/modals */
     transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 

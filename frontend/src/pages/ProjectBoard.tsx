@@ -57,124 +57,126 @@ const ProjectBoard: React.FC = () => {
     if (loading || !project) return <div className="loading-state">Loading workspace...</div>;
 
     return (
-        <div className="project-board">
-            <nav className="breadcrumb">
-                Projects / {project.name}
-            </nav>
+        <div className={`project-board ${isChatOpen ? 'chat-open' : ''}`}>
+            <div className="board-content-wrapper">
+                <nav className="breadcrumb">
+                    Projects / {project.name}
+                </nav>
 
-            <header className="board-header">
-                <div className="header-title-section">
-                    <h1>{project.name} board</h1>
-                    {view === 'board' && activeSprint && (
-                        <div className="active-sprint-info">
-                            <span className="sprint-name">{activeSprint.name}</span>
-                            <button className="btn-secondary sm" onClick={handleCompleteSprint}>
-                                Complete Sprint
-                            </button>
+                <header className="board-header">
+                    <div className="header-title-section">
+                        <h1>{project.name} board</h1>
+                        {view === 'board' && activeSprint && (
+                            <div className="active-sprint-info">
+                                <span className="sprint-name">{activeSprint.name}</span>
+                                <button className="btn-secondary sm" onClick={handleCompleteSprint}>
+                                    Complete Sprint
+                                </button>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="board-controls">
+                        <div className="view-toggle">
+                            <button className={`toggle-btn ${view === 'board' ? 'active' : ''}`} onClick={() => setView('board')}>Board</button>
+                            <button className={`toggle-btn ${view === 'backlog' ? 'active' : ''}`} onClick={() => setView('backlog')}>Backlog</button>
                         </div>
-                    )}
-                </div>
-
-                <div className="board-controls">
-                    <div className="view-toggle">
-                        <button className={`toggle-btn ${view === 'board' ? 'active' : ''}`} onClick={() => setView('board')}>Board</button>
-                        <button className={`toggle-btn ${view === 'backlog' ? 'active' : ''}`} onClick={() => setView('backlog')}>Backlog</button>
                     </div>
-                </div>
 
-                <div className="board-actions">
-                    <div className="search-box">
-                        <Search size={16} />
-                        <input
-                            type="text"
-                            placeholder="Search issues..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
+                    <div className="board-actions">
+                        <div className="search-box">
+                            <Search size={16} />
+                            <input
+                                type="text"
+                                placeholder="Search issues..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                        </div>
+                        <button className="btn-secondary" onClick={() => setIsCreatingSprint(true)}>Create Sprint</button>
+                        <button className="btn-secondary icon-text" onClick={() => navigate(`/projects/${id}/team`)}>
+                            <Users size={18} />
+                            <span>Team</span>
+                        </button>
+                        <button className="btn-primary icon-text" onClick={() => setIsManagingMembers(true)}>
+                            <UserPlus size={18} />
+                            <span>Invite</span>
+                        </button>
+                        <button className={`icon-btn ${isChatOpen ? 'active' : ''}`} onClick={() => setIsChatOpen(!isChatOpen)}>
+                            <MessageSquare size={18} />
+                        </button>
+                        <button className="icon-btn"><MoreHorizontal size={18} /></button>
                     </div>
-                    <button className="btn-secondary" onClick={() => setIsCreatingSprint(true)}>Create Sprint</button>
-                    <button className="btn-secondary icon-text" onClick={() => navigate(`/projects/${id}/team`)}>
-                        <Users size={18} />
-                        <span>Team</span>
-                    </button>
-                    <button className="btn-primary icon-text" onClick={() => setIsManagingMembers(true)}>
-                        <UserPlus size={18} />
-                        <span>Invite</span>
-                    </button>
-                    <button className={`icon-btn ${isChatOpen ? 'active' : ''}`} onClick={() => setIsChatOpen(!isChatOpen)}>
-                        <MessageSquare size={18} />
-                    </button>
-                    <button className="icon-btn"><MoreHorizontal size={18} /></button>
-                </div>
-            </header>
+                </header>
 
-            <FilterBar
-                members={project.members || []}
-                filters={filters}
-                onFilterChange={setFilters}
-            />
-
-            {view === 'backlog' && sprints.length > 0 && (
-                <div className="sprints-list-container">
-                    <h3>Planned Sprints</h3>
-                    <div className="sprints-grid">
-                        {sprints.map(s => (
-                            <SprintCard key={s.id} sprint={s} onStart={handleStartSprint} />
-                        ))}
-                    </div>
-                </div>
-            )}
-
-            <KanbanBoard
-                issues={issues}
-                members={project.members || []}
-                setIssues={setIssues}
-                projectId={id!}
-                projectKey={project.key}
-                onSelectIssue={setSelectedIssueId}
-                onStartCreateIssue={(status) => setIsCreatingIssue({ status })}
-                onUpdate={refreshIssues}
-            />
-
-            {selectedIssueId && (
-                <IssueDetails
-                    issueId={selectedIssueId}
+                <FilterBar
                     members={project.members || []}
-                    onClose={() => setSelectedIssueId(null)}
+                    filters={filters}
+                    onFilterChange={setFilters}
+                />
+
+                {view === 'backlog' && sprints.length > 0 && (
+                    <div className="sprints-list-container">
+                        <h3>Planned Sprints</h3>
+                        <div className="sprints-grid">
+                            {sprints.map(s => (
+                                <SprintCard key={s.id} sprint={s} onStart={handleStartSprint} />
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                <KanbanBoard
+                    issues={issues}
+                    members={project.members || []}
+                    setIssues={setIssues}
+                    projectId={id!}
+                    projectKey={project.key}
+                    onSelectIssue={setSelectedIssueId}
+                    onStartCreateIssue={(status) => setIsCreatingIssue({ status })}
                     onUpdate={refreshIssues}
                 />
-            )}
 
-            {isCreatingIssue && (
-                <CreateIssueModal
-                    projectId={id!}
-                    status={isCreatingIssue.status}
-                    members={(project as any).members || []}
-                    sprints={sprints}
-                    onClose={() => setIsCreatingIssue(null)}
-                    onCreated={(newIssue) => {
-                        refreshIssues();
-                        setSelectedIssueId(newIssue.id);
-                    }}
-                />
-            )}
+                {selectedIssueId && (
+                    <IssueDetails
+                        issueId={selectedIssueId}
+                        members={project.members || []}
+                        onClose={() => setSelectedIssueId(null)}
+                        onUpdate={refreshIssues}
+                    />
+                )}
 
-            {isManagingMembers && (
-                <AddMemberModal
-                    projectId={id!}
-                    existingMembers={(project as any).members || []}
-                    onClose={() => setIsManagingMembers(false)}
-                    onMemberAdded={refreshProject}
-                />
-            )}
+                {isCreatingIssue && (
+                    <CreateIssueModal
+                        projectId={id!}
+                        status={isCreatingIssue.status}
+                        members={(project as any).members || []}
+                        sprints={sprints}
+                        onClose={() => setIsCreatingIssue(null)}
+                        onCreated={(newIssue) => {
+                            refreshIssues();
+                            setSelectedIssueId(newIssue.id);
+                        }}
+                    />
+                )}
 
-            {isCreatingSprint && (
-                <CreateSprintModal
-                    projectId={id!}
-                    onClose={() => setIsCreatingSprint(false)}
-                    onCreated={refreshSprints}
-                />
-            )}
+                {isManagingMembers && (
+                    <AddMemberModal
+                        projectId={id!}
+                        existingMembers={(project as any).members || []}
+                        onClose={() => setIsManagingMembers(false)}
+                        onMemberAdded={refreshProject}
+                    />
+                )}
+
+                {isCreatingSprint && (
+                    <CreateSprintModal
+                        projectId={id!}
+                        onClose={() => setIsCreatingSprint(false)}
+                        onCreated={refreshSprints}
+                    />
+                )}
+            </div>
 
             {isChatOpen && (
                 <div className="board-chat-sidebar">

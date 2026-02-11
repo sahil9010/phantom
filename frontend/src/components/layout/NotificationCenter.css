@@ -54,7 +54,8 @@
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-xl);
-    z-index: 1000;
+    z-index: 1100;
+    /* Above sidebar and modals */
     display: flex;
     flex-direction: column;
     animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
