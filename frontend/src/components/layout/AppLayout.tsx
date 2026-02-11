@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
-import { Menu, X, Trello } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import socket from '../../services/socket';
 import { useAuthStore } from '../../store/authStore';
@@ -20,21 +20,25 @@ const AppLayout: React.FC = () => {
 
     return (
         <div className="app-layout">
-            {/* Mobile Header */}
-            <header className="mobile-header">
-                <button className="menu-toggle" onClick={() => setIsSidebarOpen(true)}>
-                    <Menu size={24} />
-                </button>
-                <div className="mobile-logo">
-                    <Trello size={24} color="var(--primary)" />
-                    <span>Phantom</span>
-                </div>
-                <NotificationCenter />
-            </header>
+            {/* Backdrop overlay */}
+            {isSidebarOpen && (
+                <div
+                    className="sidebar-backdrop"
+                    onClick={() => setIsSidebarOpen(false)}
+                />
+            )}
 
             <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
             <main className="main-content">
+                {/* Hamburger button */}
+                <button
+                    className="hamburger-btn"
+                    onClick={() => setIsSidebarOpen(true)}
+                    aria-label="Open menu"
+                >
+                    <Menu size={20} />
+                </button>
                 <Outlet />
             </main>
         </div>
