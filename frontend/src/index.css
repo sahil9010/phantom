@@ -1,16 +1,16 @@
 :root {
-  --primary: #6366f1;
+  --primary: #4f46e5;
   /* Indigo */
-  --primary-hover: #4f46e5;
-  --secondary: #a855f7;
+  --primary-hover: #4338ca;
+  --secondary: #9333ea;
   /* Purple */
 
   /* Slate & Gray Scale */
   --background: #f8fafc;
   --surface: #ffffff;
   --surface-raised: #f1f5f9;
-  --text: #020617;
-  /* Deeper Slate */
+  --text: #1e293b;
+  /* Sleeker Slate */
   --text-inverse: #ffffff;
   --text-subtle: #64748b;
   --border: #e2e8f0;
@@ -21,16 +21,16 @@
   --warning: #f59e0b;
   --info: #3b82f6;
 
-  /* Minimalist Shadows */
+  /* Refined Shadows */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.03), 0 4px 6px -4px rgb(0 0 0 / 0.03);
-  --shadow-xl: 0 25px 50px -12px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.02), 0 4px 6px -4px rgba(0, 0, 0, 0.02);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
 
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
-  --font-sans: 'Inter', 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --font-sans: 'Inter', 'SF Pro Display', -apple-system, sans-serif;
 
   /* Glassmorphism */
   --glass-bg: rgba(255, 255, 255, 0.7);
@@ -283,7 +283,7 @@ html {
 
 .field-group label {
   font-size: 0.8rem;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text-subtle);
   display: flex;
   align-items: center;
@@ -476,11 +476,32 @@ html {
 .btn-secondary:hover {
   background: rgba(9, 30, 66, 0.08);
   color: var(--text);
-} 
- / *   S k e l e t o n   L o a d i n g   S t a t e s   * /  
- . s k e l e t o n   {   b a c k g r o u n d :   l i n e a r - g r a d i e n t ( 9 0 d e g ,   # f 0 f 0 f 0   2 5 % ,   # e 0 e 0 e 0   5 0 % ,   # f 0 f 0 f 0   7 5 % ) ;   b a c k g r o u n d - s i z e :   2 0 0 %   1 0 0 % ;   a n i m a t i o n :   s k e l e t o n - l o a d i n g   1 . 5 s   e a s e - i n - o u t   i n f i n i t e ;   b o r d e r - r a d i u s :   v a r ( - - r a d i u s - l g ) ;   }  
-  
- @ k e y f r a m e s   s k e l e t o n - l o a d i n g   {   0 %   {   b a c k g r o u n d - p o s i t i o n :   2 0 0 %   0 ;   }   1 0 0 %   {   b a c k g r o u n d - p o s i t i o n :   - 2 0 0 %   0 ;   }   }  
-  
- . l o a d i n g - s t a t e   {   d i s p l a y :   f l e x ;   a l i g n - i t e m s :   c e n t e r ;   j u s t i f y - c o n t e n t :   c e n t e r ;   m i n - h e i g h t :   4 0 0 p x ;   f o n t - s i z e :   1 . 1 r e m ;   c o l o r :   v a r ( - - t e x t - s u b t l e ) ;   f o n t - w e i g h t :   5 0 0 ;   }  
- 
+}
+
+/* Skeleton Loading States */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+  border-radius: var(--radius-lg);
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  font-size: 1.1rem;
+  color: var(--text-subtle);
+  font-weight: 500;
+}
