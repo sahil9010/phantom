@@ -25,11 +25,11 @@
 }
 
 .column-header h3 {
-    font-size: 0.85rem;
-    font-weight: 800;
+    font-size: 0.75rem;
+    font-weight: 600;
     text-transform: uppercase;
-    color: var(--text);
-    letter-spacing: 0.1em;
+    color: var(--text-subtle);
+    letter-spacing: 0.05em;
 }
 
 .issue-count {
