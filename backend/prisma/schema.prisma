@@ -69,6 +69,7 @@ model Project {
   sprints     Sprint[]
   invitations Invitation[]
   chatMessages ChatMessage[]
+  columns     String   @default("[{\"id\":\"todo\",\"title\":\"To Do\",\"order\":0},{\"id\":\"in_progress\",\"title\":\"In Progress\",\"order\":1},{\"id\":\"review\",\"title\":\"Review\",\"order\":2},{\"id\":\"done\",\"title\":\"Done\",\"order\":3}]")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   issueCount  Int      @default(0)

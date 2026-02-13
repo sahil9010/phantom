@@ -19,16 +19,10 @@ import BoardColumn from './BoardColumn';
 import api from '../../services/api';
 import './KanbanBoard.css';
 
-const COLUMNS = [
-    { id: 'todo', title: 'To Do' },
-    { id: 'in_progress', title: 'In Progress' },
-    { id: 'review', title: 'Review' },
-    { id: 'done', title: 'Done' },
-];
-
 interface KanbanBoardProps {
     issues: any[];
     members: any[];
+    columns: any[];
     setIssues: React.Dispatch<React.SetStateAction<any[]>>;
     projectId: string;
     projectKey: string;
@@ -37,7 +31,7 @@ interface KanbanBoardProps {
     onUpdate: () => void;
 }
 
-const KanbanBoard: React.FC<KanbanBoardProps> = ({ issues, members, setIssues, projectId, projectKey, onSelectIssue, onStartCreateIssue, onUpdate }) => {
+const KanbanBoard: React.FC<KanbanBoardProps> = ({ issues, members, columns, setIssues, projectId, projectKey, onSelectIssue, onStartCreateIssue, onUpdate }) => {
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
@@ -73,7 +67,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ issues, members, setIssues, p
 
         // Find the destination column (overId could be a column ID or an issue ID)
         let destinationColumnId = overId;
-        if (!COLUMNS.map(c => c.id).includes(overId)) {
+        if (!columns.map(c => c.id).includes(overId)) {
             const overIssue = issues.find(i => i.id === overId);
             if (overIssue) {
                 destinationColumnId = overIssue.status;
@@ -105,7 +99,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ issues, members, setIssues, p
                 onDragEnd={onDragEnd}
             >
                 <div className="board-columns">
-                    {COLUMNS.map((col) => (
+                    {columns.sort((a, b) => a.order - b.order).map((col) => (
                         <BoardColumn
                             key={col.id}
                             id={col.id}
@@ -113,6 +107,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ issues, members, setIssues, p
                             issues={issues.filter(i => i.status === col.id)}
                             members={members}
                             projectId={projectId}
+                            projectKey={projectKey}
                             setIssues={setIssues}
                             onSelectIssue={onSelectIssue}
                             onStartCreateIssue={onStartCreateIssue}

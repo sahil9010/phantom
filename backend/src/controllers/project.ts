@@ -197,12 +197,16 @@ export const deleteProject = async (req: AuthRequest, res: Response) => {
 };
 export const updateProject = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
-    const { name, description } = req.body;
+    const { name, description, columns } = req.body;
 
     try {
         const project = await prisma.project.update({
             where: { id },
-            data: { name, description }
+            data: {
+                name,
+                description,
+                ...(columns && { columns: JSON.stringify(columns) })
+            }
         });
         emitGlobal('projectUpdated', project);
         res.json(project);

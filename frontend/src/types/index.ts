@@ -18,6 +18,7 @@ export interface Project {
     createdAt: string;
     updatedAt: string;
     members?: User[];
+    columns?: string | any[];
     _count?: {
         issues: number;
         members: number;

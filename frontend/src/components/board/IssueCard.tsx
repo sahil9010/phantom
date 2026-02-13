@@ -63,8 +63,8 @@ const IssueCard: React.FC<IssueCardProps> = ({ issue, members, projectKey, onSel
             <p className="issue-title">{issue.title}</p>
             <div className="issue-footer">
                 <div className="issue-meta">
-                    <span className={`priority-tag ${issue.priority}`}>{issue.priority}</span>
-                    <span className="issue-type" style={{ fontSize: '0.7rem', opacity: 0.6 }}>{projectKey}-{issue.serialNumber || issue.id.slice(0, 3)}</span>
+                    {getPriorityIcon(issue.priority)}
+                    <span className="issue-key">{projectKey}-{issue.serialNumber || issue.id.slice(0, 3)}</span>
                 </div>
                 <div className="issue-assignee-container">
                     <div className="issue-assignee-avatar" onClick={handleAssigneeClick}>

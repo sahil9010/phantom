@@ -9,6 +9,7 @@ import FilterBar from '../components/board/FilterBar';
 import CreateSprintModal from '../components/project/CreateSprintModal';
 import ProjectChat from '../components/project/ProjectChat';
 import SprintCard from '../components/project/SprintCard';
+import ColumnManager from '../components/board/ColumnManager';
 import './ProjectBoard.css';
 import { useProjectBoard } from '../hooks/useProjectBoard';
 import api from '../services/api';
@@ -28,8 +29,19 @@ const ProjectBoard: React.FC = () => {
     const [selectedIssueId, setSelectedIssueId] = useState<string | null>(null);
     const [isCreatingIssue, setIsCreatingIssue] = useState<{ status: string } | null>(null);
     const [isManagingMembers, setIsManagingMembers] = useState(false);
+    const [isManagingColumns, setIsManagingColumns] = useState(false);
     const [isCreatingSprint, setIsCreatingSprint] = useState(false);
     const [isChatOpen, setIsChatOpen] = useState(false);
+
+    const projectColumns = useMemo(() => {
+        if (!project?.columns) return [];
+        try {
+            return typeof project.columns === 'string' ? JSON.parse(project.columns) : project.columns;
+        } catch (e) {
+            console.error('Failed to parse columns', e);
+            return [];
+        }
+    }, [project?.columns]);
 
     const activeSprint = useMemo(() => sprints.find(s => s.status === 'active'), [sprints]);
 
@@ -105,7 +117,9 @@ const ProjectBoard: React.FC = () => {
                         <button className={`icon-btn ${isChatOpen ? 'active' : ''}`} onClick={() => setIsChatOpen(!isChatOpen)}>
                             <MessageSquare size={18} />
                         </button>
-                        <button className="icon-btn"><MoreHorizontal size={18} /></button>
+                        <button className="icon-btn" onClick={() => setIsManagingColumns(true)}>
+                            <MoreHorizontal size={18} />
+                        </button>
                     </div>
                 </header>
 
@@ -129,6 +143,7 @@ const ProjectBoard: React.FC = () => {
                 <KanbanBoard
                     issues={issues}
                     members={project.members || []}
+                    columns={projectColumns}
                     setIssues={setIssues}
                     projectId={id!}
                     projectKey={project.key}
@@ -136,6 +151,15 @@ const ProjectBoard: React.FC = () => {
                     onStartCreateIssue={(status) => setIsCreatingIssue({ status })}
                     onUpdate={refreshIssues}
                 />
+
+                {isManagingColumns && (
+                    <ColumnManager
+                        projectId={id!}
+                        currentColumns={projectColumns}
+                        onClose={() => setIsManagingColumns(false)}
+                        onUpdate={refreshProject}
+                    />
+                )}
 
                 {selectedIssueId && (
                     <IssueDetails

@@ -1,31 +1,29 @@
 .board-column {
-    width: 320px;
-    min-width: 320px;
+    flex: 1;
+    min-width: 140px;
     background-color: var(--surface-raised);
     border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-md);
     display: flex;
     flex-direction: column;
     max-height: 100%;
-    box-shadow: var(--shadow-sm);
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .board-column.is-over {
     background-color: rgba(99, 102, 241, 0.05);
     border-color: var(--primary);
-    transform: scale(1.01);
 }
 
 .column-header {
-    padding: 1.5rem;
+    padding: 0.75rem 1rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
 .column-header h3 {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 600;
     text-transform: uppercase;
     color: var(--text-subtle);
@@ -35,25 +33,25 @@
 .issue-count {
     background-color: var(--surface);
     color: var(--text-subtle);
-    font-size: 0.75rem;
-    padding: 0.2rem 0.6rem;
-    border-radius: 20px;
+    font-size: 0.65rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
     font-weight: 700;
     border: 1px solid var(--border);
 }
 
 .column-content {
     flex: 1;
-    padding: 0 1rem 1.5rem;
+    padding: 0 0.5rem 0.75rem;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
-    min-height: 200px;
+    gap: 0.5rem;
+    min-height: 100px;
 }
 
 .column-footer {
-    padding: 1rem;
+    padding: 0.5rem;
 }
 
 .create-btn {
