@@ -34,12 +34,20 @@ const ProjectBoard: React.FC = () => {
     const [isChatOpen, setIsChatOpen] = useState(false);
 
     const projectColumns = useMemo(() => {
-        if (!project?.columns) return [];
+        const DEFAULT_COLUMNS = [
+            { id: 'todo', title: 'To Do', order: 0 },
+            { id: 'in_progress', title: 'In Progress', order: 1 },
+            { id: 'review', title: 'Review', order: 2 },
+            { id: 'done', title: 'Done', order: 3 }
+        ];
+
+        if (!project?.columns) return DEFAULT_COLUMNS;
         try {
-            return typeof project.columns === 'string' ? JSON.parse(project.columns) : project.columns;
+            const parsed = typeof project.columns === 'string' ? JSON.parse(project.columns) : project.columns;
+            return (Array.isArray(parsed) && parsed.length > 0) ? parsed : DEFAULT_COLUMNS;
         } catch (e) {
             console.error('Failed to parse columns', e);
-            return [];
+            return DEFAULT_COLUMNS;
         }
     }, [project?.columns]);
 
