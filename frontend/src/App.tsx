@@ -11,6 +11,7 @@ import TeamPage from './pages/TeamPage';
 import ProjectsPage from './pages/ProjectsPage';
 import MembersPage from './pages/MembersPage';
 import RolesPage from './pages/RolesPage';
+import AdminDashboard from './pages/AdminDashboard';
 
 function App() {
     const token = useAuthStore((state) => state.token);
@@ -23,6 +24,7 @@ function App() {
 
                 <Route element={token ? <AppLayout /> : <Navigate to="/login" />}>
                     <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/admin/dashboard" element={<AdminDashboard />} />
                     <Route path="/members" element={<MembersPage />} />
                     <Route path="/roles" element={<RolesPage />} />
                     <Route path="/projects" element={<ProjectsPage />} />

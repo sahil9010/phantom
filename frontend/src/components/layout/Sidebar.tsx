@@ -81,6 +81,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                         </div>
                     )}
 
+                    {user?.role === 'admin' && (
+                        <>
+                            {!isCollapsed && <div className="nav-section-title">System Info</div>}
+                            <NavLink to="/admin/dashboard" className={({ isActive }) => isActive ? 'active' : ''} onClick={onClose}>
+                                <LayoutDashboard size={20} />
+                                {!isCollapsed && <span>Admin Dashboard</span>}
+                            </NavLink>
+                        </>
+                    )}
+
                     <NavLink to="/members" className={({ isActive }) => isActive ? 'active' : ''} onClick={onClose}>
                         <Users size={20} />
                         {!isCollapsed && <span>Members</span>}
