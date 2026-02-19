@@ -13,6 +13,7 @@ import settingsRoutes from './routes/settings';
 import roleRoutes from './routes/role';
 import notificationRoutes from './routes/notification';
 import adminRoutes from './routes/admin';
+import superAdminRoutes from './routes/superadmin';
 
 dotenv.config();
 
@@ -70,6 +71,7 @@ app.use('/api/settings', settingsRoutes);
 app.use('/api/roles', roleRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/super-admin', superAdminRoutes);
 
 // ✅ Health check
 app.get('/health', (req, res) => {

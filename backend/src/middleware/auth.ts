@@ -38,3 +38,11 @@ export const adminOnly = (req: AuthRequest, res: Response, next: NextFunction) =
         res.status(403).json({ error: 'Admin resource. Access denied.' });
     }
 };
+
+export const superAdminOnly = (req: AuthRequest, res: Response, next: NextFunction) => {
+    if (req.user && req.user.isSuperAdmin) {
+        next();
+    } else {
+        res.status(403).json({ error: 'Super Admin resource. Access denied.' });
+    }
+};

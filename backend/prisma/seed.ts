@@ -6,15 +6,39 @@ const prisma = new PrismaClient();
 async function main() {
     const hashedPassword = await bcrypt.hash('password123', 10);
 
+    // Create Organization
+    const defaultOrg = await prisma.organization.upsert({
+        where: { slug: 'default-org' },
+        update: {},
+        create: {
+            name: 'Default Organization',
+            slug: 'default-org',
+            paymentStatus: 'paid',
+            plan: 'enterprise',
+        },
+    });
+
     // Create Users
     const admin = await prisma.user.upsert({
         where: { email: 'admin@example.com' },
-        update: {},
+        update: { isSuperAdmin: true },
         create: {
             email: 'admin@example.com',
             name: 'Admin User',
             password: hashedPassword,
             role: 'admin',
+            isSuperAdmin: true,
+        },
+    });
+
+    // Link Admin to Org
+    await prisma.organizationMember.upsert({
+        where: { userId_organizationId: { userId: admin.id, organizationId: defaultOrg.id } },
+        update: {},
+        create: {
+            userId: admin.id,
+            organizationId: defaultOrg.id,
+            role: 'owner',
         },
     });
 
@@ -47,6 +71,7 @@ async function main() {
             key: 'DASH',
             description: 'Main project for internal tools.',
             ownerId: admin.id,
+            organizationId: defaultOrg.id,
             members: {
                 create: [
                     { userId: admin.id, role: 'admin' },

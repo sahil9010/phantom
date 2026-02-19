@@ -16,6 +16,7 @@ model User {
   password  String
   name      String
   role      String    @default("contributor") // admin, project-manager, contributor
+  isSuperAdmin Boolean @default(false)
   roleId    String?
   customRole Role?    @relation(fields: [roleId], references: [id])
   bio       String?
@@ -28,6 +29,7 @@ model User {
   invitations Invitation[]
   notifications Notification[] @relation("UserNotifications")
   chatMessages  ChatMessage[]  @relation("ChatAuthor")
+  organizations OrganizationMember[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   settings  UserSetting?
@@ -57,6 +59,31 @@ model UserSetting {
   updatedAt          DateTime @updatedAt
 }
 
+model Organization {
+  id            String   @id @default(uuid())
+  name          String
+  slug          String   @unique
+  paymentStatus String   @default("unpaid") // unpaid, paid, trial, overdue
+  plan          String   @default("free")   // free, pro, enterprise
+  projects      Project[]
+  members       OrganizationMember[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model OrganizationMember {
+  id             String       @id @default(uuid())
+  userId         String
+  organizationId String
+  role           String       @default("member") // owner, admin, member
+  user           User         @relation(fields: [userId], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([userId, organizationId])
+}
+
 model Project {
   id          String   @id @default(uuid())
   name        String
@@ -64,6 +91,8 @@ model Project {
   description String?
   ownerId     String
   owner       User     @relation("ProjectOwner", fields: [ownerId], references: [id])
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
   members     Member[]
   issues      Issue[]
   sprints     Sprint[]

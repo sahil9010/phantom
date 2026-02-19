@@ -103,6 +103,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                         </NavLink>
                     )}
 
+                    {user?.isSuperAdmin && (
+                        <>
+                            {!isCollapsed && <div className="nav-section-title">SaaS Management</div>}
+                            <NavLink to="/super-admin" className={({ isActive }) => isActive ? 'active' : ''} onClick={onClose}>
+                                <Shield size={20} />
+                                {!isCollapsed && <span>Super Admin</span>}
+                            </NavLink>
+                        </>
+                    )}
+
                     {!isCollapsed && <div className="nav-section-title">Settings</div>}
 
                     <NavLink
