@@ -39,6 +39,12 @@ const AppLayout: React.FC = () => {
                 >
                     <Menu size={20} />
                 </button>
+
+                {/* Fixed top-right notification bar */}
+                <div className="topbar-notifications">
+                    <NotificationCenter />
+                </div>
+
                 <Outlet />
             </main>
         </div>

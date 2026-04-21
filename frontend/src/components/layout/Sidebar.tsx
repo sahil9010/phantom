@@ -7,7 +7,7 @@ import {
 import SettingsModal from '../settings/SettingsModal';
 import './Sidebar.css';
 import { useAuthStore } from '../../store/authStore';
-import NotificationCenter from './NotificationCenter';
+
 import GlobalSearch from './GlobalSearch';
 import { useProjects } from '../../hooks/useProjects';
 
@@ -40,7 +40,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                     <Trello size={28} className="logo-icon" />
                     {!isCollapsed && <span>Phantom</span>}
                 </div>
-                {!isCollapsed && <NotificationCenter />}
                 <button className="collapse-btn" onClick={toggleCollapse}>
                     <ChevronRight size={16} className={isCollapsed ? '' : 'rotated'} />
                 </button>
