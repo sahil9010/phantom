@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Search, Users, UserPlus, MessageSquare, MoreHorizontal } from 'lucide-react';
+import { Search, Users, UserPlus, MessageSquare, MoreHorizontal, Plus } from 'lucide-react';
 import KanbanBoard from '../components/board/KanbanBoard';
 import IssueDetails from '../components/issue/IssueDetails';
 import CreateIssueModal from '../components/issue/CreateIssueModal';
@@ -74,18 +74,20 @@ const ProjectBoard: React.FC = () => {
         }
     }, [refreshSprints]);
 
-    if (loading || !project) return <div className="loading-state">Loading workspace...</div>;
+    if (loading || !project) return <div className="loading-state">Loading board...</div>;
 
     return (
         <div className={`project-board ${isChatOpen ? 'chat-open' : ''}`}>
             <div className="board-content-wrapper">
+                {/* Breadcrumb */}
                 <nav className="breadcrumb">
-                    Projects / {project.name}
+                    Projects / {project.name} / {view === 'board' ? 'Board' : 'Backlog'}
                 </nav>
 
+                {/* Header */}
                 <header className="board-header">
                     <div className="header-title-section">
-                        <h1>{project.name} board</h1>
+                        <h1>{project.key} board</h1>
                         {view === 'board' && activeSprint && (
                             <div className="active-sprint-info">
                                 <span className="sprint-name">{activeSprint.name}</span>
@@ -104,39 +106,75 @@ const ProjectBoard: React.FC = () => {
                     </div>
 
                     <div className="board-actions">
+                        <button className="btn-create-issue" onClick={() => setIsCreatingIssue({ status: 'todo' })}>
+                            <Plus size={16} />
+                            <span>Create</span>
+                        </button>
                         <div className="search-box">
                             <Search size={16} />
                             <input
                                 type="text"
-                                placeholder="Search issues..."
+                                placeholder="Search"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
                         </div>
-                        <button className="btn-secondary" onClick={() => setIsCreatingSprint(true)}>Create Sprint</button>
-                        <button className="btn-secondary icon-text" onClick={() => navigate(`/projects/${id}/team`)}>
-                            <Users size={18} />
-                            <span>Team</span>
+
+                        {/* Avatar group placeholder */}
+                        <div style={{ display: 'flex', marginLeft: '8px' }}>
+                            {(project.members || []).slice(0, 4).map((m: any, i: number) => (
+                                <div
+                                    key={m.user?.id || i}
+                                    style={{
+                                        width: '28px',
+                                        height: '28px',
+                                        borderRadius: '50%',
+                                        background: ['#00B8D9', '#36B37E', '#FF5630', '#6554C0'][i % 4],
+                                        color: '#fff',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: '11px',
+                                        fontWeight: 600,
+                                        marginLeft: i > 0 ? '-6px' : '0',
+                                        border: '2px solid #fff',
+                                        zIndex: 4 - i,
+                                        position: 'relative',
+                                    }}
+                                    title={m.user?.name || ''}
+                                >
+                                    {m.user?.name?.[0]?.toUpperCase() || '?'}
+                                </div>
+                            ))}
+                        </div>
+
+                        <button className="btn-secondary" onClick={() => setIsCreatingSprint(true)}>
+                            Sprint
                         </button>
-                        <button className="btn-primary icon-text" onClick={() => setIsManagingMembers(true)}>
-                            <UserPlus size={18} />
+                        <button className="icon-btn" onClick={() => navigate(`/projects/${id}/team`)} title="Team">
+                            <Users size={18} />
+                        </button>
+                        <button className="btn-primary" onClick={() => setIsManagingMembers(true)}>
+                            <UserPlus size={16} />
                             <span>Invite</span>
                         </button>
-                        <button className={`icon-btn ${isChatOpen ? 'active' : ''}`} onClick={() => setIsChatOpen(!isChatOpen)}>
+                        <button className={`icon-btn ${isChatOpen ? 'active' : ''}`} onClick={() => setIsChatOpen(!isChatOpen)} title="Chat">
                             <MessageSquare size={18} />
                         </button>
-                        <button className="icon-btn" onClick={() => setIsManagingColumns(true)}>
+                        <button className="icon-btn" onClick={() => setIsManagingColumns(true)} title="Board settings">
                             <MoreHorizontal size={18} />
                         </button>
                     </div>
                 </header>
 
+                {/* Filters */}
                 <FilterBar
                     members={project.members || []}
                     filters={filters}
                     onFilterChange={setFilters}
                 />
 
+                {/* Sprints list (backlog view) */}
                 {view === 'backlog' && sprints.length > 0 && (
                     <div className="sprints-list-container">
                         <h3>Planned Sprints</h3>
@@ -148,6 +186,7 @@ const ProjectBoard: React.FC = () => {
                     </div>
                 )}
 
+                {/* Board */}
                 <KanbanBoard
                     issues={issues}
                     members={project.members || []}
@@ -160,6 +199,7 @@ const ProjectBoard: React.FC = () => {
                     onUpdate={refreshIssues}
                 />
 
+                {/* Modals */}
                 {isManagingColumns && (
                     <ColumnManager
                         projectId={id!}

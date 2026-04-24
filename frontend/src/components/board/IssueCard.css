@@ -1,27 +1,49 @@
+/* ===== Jira Issue Card ===== */
 .issue-card {
-    background: var(--surface);
-    padding: 0.6rem 0.75rem;
-    border-radius: 4px;
-    box-shadow: var(--shadow-sm);
-    cursor: grab;
-    border: 1px solid var(--border);
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    background: var(--N0);
+    padding: 8px 10px;
+    border-radius: 3px;
+    box-shadow: 0 1px 1px rgba(9, 30, 66, 0.25), 0 0 1px 0 rgba(9, 30, 66, 0.13);
+    cursor: pointer;
+    border: none;
+    transition: background 0.1s ease, box-shadow 0.1s ease;
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
-    margin-bottom: 0.25rem;
+    gap: 6px;
 }
 
 .issue-card:hover {
-    box-shadow: var(--shadow-md);
-    border-color: var(--primary);
+    background: var(--N10);
+    box-shadow: 0 4px 8px -2px rgba(9, 30, 66, 0.25), 0 0 1px rgba(9, 30, 66, 0.31);
 }
 
+.issue-card:active {
+    background: var(--primary-light);
+}
+
+/* Priority Left Border */
+.issue-card[data-priority="critical"] {
+    border-left: 3px solid var(--error);
+}
+
+.issue-card[data-priority="high"] {
+    border-left: 3px solid #FF991F;
+}
+
+.issue-card[data-priority="medium"] {
+    border-left: 3px solid #FFAB00;
+}
+
+.issue-card[data-priority="low"] {
+    border-left: 3px solid var(--success);
+}
+
+/* Issue Title */
 .issue-title {
-    font-size: 0.8rem;
-    font-weight: 500;
-    color: var(--text);
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--N800);
     line-height: 1.4;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -31,44 +53,81 @@
     -webkit-box-orient: vertical;
 }
 
+/* Issue Footer */
 .issue-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 0.25rem;
+    margin-top: 2px;
 }
 
 .issue-meta {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 4px;
 }
 
 .issue-key {
-    font-size: 0.7rem;
+    font-size: 11px;
     font-weight: 600;
-    color: var(--text-subtle);
+    color: var(--N200);
 }
 
 .issue-meta svg {
     flex-shrink: 0;
 }
 
+/* Assignee Avatar */
+.issue-assignee-container {
+    position: relative;
+}
+
 .issue-assignee-avatar {
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
-    background: var(--grad-primary);
-    color: white;
+    background: linear-gradient(135deg, #00B8D9 0%, #00A3BF 100%);
+    color: var(--N0);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.6rem;
-    font-weight: 700;
-    border: 1px solid white;
+    font-size: 10px;
+    font-weight: 600;
+    border: 2px solid var(--N0);
+    cursor: pointer;
+    transition: opacity 0.1s ease;
 }
 
+.issue-assignee-avatar:hover {
+    opacity: 0.85;
+}
+
+/* Drag State */
 .issue-card.dragging {
-    opacity: 0.5;
-    transform: rotate(1deg);
+    opacity: 0.4;
+    transform: rotate(2deg);
+}
+
+/* Done State - Strikethrough */
+.issue-card.is-done {
+    opacity: 0.7;
+    background: var(--N10);
+}
+
+.issue-card.is-done:hover {
+    opacity: 0.85;
+}
+
+.done-title {
+    text-decoration: line-through;
+    color: var(--N200);
+}
+
+.issue-card.is-done .issue-key {
+    text-decoration: line-through;
+    color: var(--N80);
+}
+
+.issue-card.is-done .issue-assignee-avatar {
+    opacity: 0.6;
 }

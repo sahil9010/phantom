@@ -1,26 +1,28 @@
+/* ===== Jira-Style Members Page ===== */
 .members-page {
     width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 32px 40px;
 }
 
 .members-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2.5rem;
+    margin-bottom: 24px;
 }
 
 .members-header h1 {
-    font-size: 2.2rem;
-    font-weight: 800;
-    color: var(--text);
-    letter-spacing: -0.04em;
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--N800);
 }
 
 .members-table-container {
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
+    background: var(--N0);
+    border: 1px solid var(--N30);
+    border-radius: 3px;
     overflow: hidden;
 }
 
@@ -31,24 +33,24 @@
 }
 
 .members-table th {
-    background: var(--surface-raised);
-    padding: 1rem 1.5rem;
-    font-size: 0.75rem;
-    font-weight: 800;
-    color: var(--text-subtle);
+    background: var(--N20);
+    padding: 8px 16px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--N200);
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.04em;
     position: sticky;
     top: 0;
     z-index: 10;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--N30);
 }
 
 .members-table td {
-    padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid var(--border);
-    font-size: 0.95rem;
-    color: var(--text);
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--N30);
+    font-size: 14px;
+    color: var(--N800);
     vertical-align: middle;
 }
 
@@ -57,80 +59,80 @@
 }
 
 .members-table tr:hover td {
-    background-color: #f8fafc;
+    background-color: var(--N10);
 }
 
 .user-cell {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 10px;
 }
 
 .user-avatar-small {
-    width: 32px;
-    height: 32px;
-    background: var(--grad-primary);
-    color: white;
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, #00B8D9, #00A3BF);
+    color: var(--N0);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 700;
-    font-size: 0.8rem;
+    font-weight: 600;
+    font-size: 11px;
 }
 
 .role-badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 11px;
     font-weight: 700;
-    text-transform: capitalize;
+    text-transform: uppercase;
 }
 
 .role-admin {
-    background: #fee2e2;
-    color: #991b1b;
+    background: #FFEBE6;
+    color: #DE350B;
 }
 
 .role-project-manager {
-    background: #e0e7ff;
-    color: #3730a3;
+    background: #DEEBFF;
+    color: #0052CC;
 }
 
 .role-contributor {
-    background: #f1f5f9;
-    color: #475569;
+    background: var(--N20);
+    color: var(--N300);
 }
 
 .actions-cell {
     display: flex;
     justify-content: flex-end;
-    gap: 0.5rem;
+    gap: 4px;
 }
 
 .actions-cell .icon-btn {
-    padding: 0.5rem;
-    border-radius: 6px;
-    color: var(--text-subtle);
-    transition: all 0.2s ease;
+    padding: 4px;
+    border-radius: 3px;
+    color: var(--N200);
+    transition: background 0.1s ease;
 }
 
 .actions-cell .icon-btn:hover {
-    background: var(--surface-raised);
+    background: var(--N20);
     color: var(--primary);
 }
 
 .actions-cell .delete-btn:hover {
-    background: #fee2e2;
+    background: #FFEBE6;
     color: var(--error);
 }
 
 .role-select {
-    padding: 0.4rem 0.75rem;
-    border: 1px solid var(--primary);
-    border-radius: var(--radius-sm);
-    font-size: 0.85rem;
-    font-weight: 600;
+    padding: 4px 8px;
+    border: 2px solid var(--primary);
+    border-radius: 3px;
+    font-size: 14px;
+    font-weight: 500;
     outline: none;
-    background: white;
+    background: var(--N0);
 }

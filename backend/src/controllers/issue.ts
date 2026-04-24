@@ -25,7 +25,15 @@ export const createIssue = async (req: AuthRequest, res: Response) => {
                 select: { issueCount: true }
             });
 
-            // 2. Create issue with the new serial number
+            // Get max rank for the status column
+            const maxRankIssue = await tx.issue.findFirst({
+                where: { projectId, status },
+                orderBy: { rank: 'desc' },
+                select: { rank: true }
+            });
+            const nextRank = (maxRankIssue?.rank ?? -1) + 1;
+
+            // 2. Create issue with the new serial number and rank
             const newIssue = await tx.issue.create({
                 data: {
                     title,
@@ -38,6 +46,7 @@ export const createIssue = async (req: AuthRequest, res: Response) => {
                     assigneeId,
                     reporterId,
                     serialNumber: project.issueCount,
+                    rank: nextRank,
                     dueDate: dueDate ? new Date(dueDate) : null,
                     labels: JSON.stringify(labels || []),
                 },
@@ -141,7 +150,7 @@ export const getProjectIssues = async (req: Request, res: Response) => {
                 reporter: { select: { id: true, name: true } },
                 project: { select: { key: true } }
             },
-            orderBy: { serialNumber: 'desc' } // Or 'rank' if we had one
+            orderBy: [{ rank: 'asc' }, { serialNumber: 'desc' }]
         });
         res.json(issues);
     } catch (error) {
@@ -173,5 +182,30 @@ export const getIssueDetails = async (req: Request, res: Response) => {
         res.json(issue);
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch issue details' });
+    }
+};
+
+// Reorder issues (bulk rank update)
+export const reorderIssues = async (req: AuthRequest, res: Response) => {
+    const { updates } = req.body; // Array of { id, status, rank }
+
+    if (!updates || !Array.isArray(updates)) {
+        return res.status(400).json({ error: 'Updates array is required' });
+    }
+
+    try {
+        await prisma.$transaction(
+            updates.map((u: { id: string; status: string; rank: number }) =>
+                prisma.issue.update({
+                    where: { id: u.id },
+                    data: { status: u.status, rank: u.rank },
+                })
+            )
+        );
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Reorder error:', error);
+        res.status(500).json({ error: 'Failed to reorder issues' });
     }
 };

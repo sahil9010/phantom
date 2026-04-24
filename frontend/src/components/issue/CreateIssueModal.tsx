@@ -168,20 +168,23 @@ const CreateIssueModal: React.FC<CreateIssueModalProps> = ({ projectId, status, 
                             </div>
                         </div>
                     </div>
-
-                    <footer className="form-footer">
-                        <button type="button" className="btn-secondary" onClick={onClose}>
-                            Cancel
-                        </button>
-                        <button type="submit" className="btn-primary" disabled={loading}>
-                            {loading ? (
-                                <span className="loader">Creating...</span>
-                            ) : (
-                                <>Save Task</>
-                            )}
-                        </button>
-                    </footer>
                 </form>
+
+                <footer className="form-footer">
+                    <button type="button" className="btn-secondary" onClick={onClose}>
+                        Cancel
+                    </button>
+                    <button type="button" className="btn-primary" disabled={loading} onClick={(e) => {
+                        const form = document.querySelector('.premium-form') as HTMLFormElement;
+                        if (form) form.requestSubmit();
+                    }}>
+                        {loading ? (
+                            <span className="loader">Creating...</span>
+                        ) : (
+                            <>Save Task</>
+                        )}
+                    </button>
+                </footer>
             </div>
         </div>
     );

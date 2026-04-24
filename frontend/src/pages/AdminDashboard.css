@@ -1,6 +1,7 @@
+/* ===== Jira-Style Admin Dashboard ===== */
 .admin-dashboard {
-    padding: 2rem;
-    max-width: 1200px;
+    padding: 32px 40px;
+    max-width: 1000px;
     margin: 0 auto;
 }
 
@@ -10,57 +11,56 @@
     align-items: center;
     justify-content: center;
     min-height: 400px;
-    font-size: 1.1rem;
-    color: var(--text-subtle);
+    font-size: 14px;
+    color: var(--N200);
 }
 
 .metrics-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
-    margin-top: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
 }
 
 .metric-card {
-    background: white;
-    padding: 1.5rem;
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border);
+    background: var(--N0);
+    padding: 16px 20px;
+    border-radius: 3px;
+    border: 1px solid var(--N30);
     display: flex;
     align-items: center;
-    gap: 1.5rem;
-    transition: all 0.3s ease;
-    box-shadow: var(--shadow-sm);
+    gap: 16px;
+    transition: background 0.1s ease;
 }
 
 .metric-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-    border-color: var(--primary);
+    background: var(--N10);
+    transform: none;
+    box-shadow: none;
 }
 
 .metric-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 16px;
+    width: 48px;
+    height: 48px;
+    border-radius: 3px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .metric-icon.users {
-    background: rgba(99, 102, 241, 0.1);
+    background: #DEEBFF;
     color: var(--primary);
 }
 
 .metric-icon.projects {
-    background: rgba(16, 185, 129, 0.1);
-    color: #10b981;
+    background: #E3FCEF;
+    color: #36B37E;
 }
 
 .metric-icon.issues {
-    background: rgba(245, 158, 11, 0.1);
-    color: #f59e0b;
+    background: #FFFAE6;
+    color: #FF991F;
 }
 
 .metric-info {
@@ -68,27 +68,27 @@
 }
 
 .metric-info label {
-    font-size: 0.85rem;
+    font-size: 12px;
     font-weight: 600;
-    color: var(--text-subtle);
+    color: var(--N200);
     display: block;
-    margin-bottom: 0.25rem;
+    margin-bottom: 2px;
 }
 
 .metric-info .value {
-    font-size: 2rem;
-    font-weight: 800;
-    color: var(--text);
-    margin-bottom: 0.5rem;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--N800);
+    margin-bottom: 4px;
 }
 
 .metric-link {
-    font-size: 0.85rem;
-    font-weight: 700;
+    font-size: 13px;
+    font-weight: 500;
     color: var(--primary);
     display: flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: 4px;
     text-decoration: none;
 }
 
@@ -102,40 +102,40 @@
 }
 
 .admin-tools {
-    margin-top: 4rem;
+    margin-top: 32px;
 }
 
 .admin-tools h2 {
-    font-size: 1.25rem;
-    font-weight: 700;
-    margin-bottom: 1.5rem;
-    color: var(--text);
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 16px;
+    color: var(--N800);
 }
 
 .tools-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
 }
 
 .tool-box {
-    background: white;
-    padding: 1.5rem;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--border);
+    background: var(--N0);
+    padding: 16px;
+    border-radius: 3px;
+    border: 1px solid var(--N30);
     display: flex;
-    gap: 1rem;
+    gap: 12px;
     text-decoration: none;
-    transition: all 0.2s ease;
+    transition: background 0.1s ease;
 }
 
 .tool-box:hover {
     border-color: var(--primary);
-    background: var(--surface-raised);
+    background: var(--N10);
 }
 
 .tool-box.placeholder {
-    background: var(--surface-raised);
+    background: var(--N20);
     border-style: dashed;
     cursor: default;
 }
@@ -146,18 +146,22 @@
 }
 
 .tool-text h3 {
-    font-size: 1rem;
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-    color: var(--text);
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 2px;
+    color: var(--N800);
 }
 
 .tool-text p {
-    font-size: 0.85rem;
-    color: var(--text-subtle);
+    font-size: 12px;
+    color: var(--N200);
 }
 
 @media (max-width: 768px) {
+    .admin-dashboard {
+        padding: 24px 16px;
+    }
+
     .metrics-grid {
         grid-template-columns: 1fr;
     }

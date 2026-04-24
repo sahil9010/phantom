@@ -1,43 +1,54 @@
+/* ===== Jira Kanban Board ===== */
 .kanban-board {
     flex: 1;
-    overflow-x: hidden;
-    /* Prevent horizontal scroll */
+    overflow-x: auto;
     overflow-y: hidden;
-    padding: 1rem 0 1rem;
+    padding: 0;
     display: flex;
     flex-direction: column;
 }
 
 .board-columns {
     display: flex;
-    gap: 0.5rem;
-    height: 100%;
+    gap: 0;
+    flex: 1;
+    min-height: 0;
     width: 100%;
     min-width: 0;
+    padding: 0 24px 16px 40px;
+    overflow-y: hidden;
 }
 
-/* Tablet / Tab Responsive */
+/* Tablet */
 @media (max-width: 768px) {
     .board-columns {
-        padding: 0 1rem;
+        padding: 0 16px;
+        overflow-x: auto;
     }
 
     .board-column {
-        width: calc(100vw - 3rem);
-        min-width: calc(100vw - 3rem);
+        width: calc(100vw - 48px);
+        min-width: calc(100vw - 48px);
         flex-shrink: 0;
     }
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
     .board-column {
-        width: 300px;
+        width: 280px;
         flex-shrink: 0;
     }
 }
 
-/* Drag Visual Feedback */
+/* Drag Feedback */
 .board-column.is-over {
-    background-color: rgba(0, 82, 204, 0.05);
-    border-color: var(--primary);
+    background-color: rgba(0, 82, 204, 0.04);
+}
+
+/* Drag Overlay - the ghost card that follows cursor */
+[data-dnd-kit-drag-overlay] .issue-card {
+    box-shadow: 0 8px 16px -4px rgba(9, 30, 66, 0.25), 0 0 1px rgba(9, 30, 66, 0.31);
+    transform: rotate(3deg);
+    opacity: 0.95;
+    cursor: grabbing;
 }

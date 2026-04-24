@@ -1,117 +1,122 @@
+/* ===== Jira-Style Login ===== */
 .login-container {
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.1), transparent),
-        radial-gradient(circle at bottom left, rgba(139, 92, 246, 0.1), transparent),
-        var(--background);
+    background: var(--N10);
     padding: 2rem;
 }
 
 .login-form {
-    background: var(--surface);
-    padding: 4rem 3rem;
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-xl), 0 0 0 1px rgba(0, 0, 0, 0.05);
+    background: var(--N0);
+    padding: 40px;
+    border-radius: 3px;
+    box-shadow: var(--shadow-lg);
     width: 100%;
-    max-width: 480px;
-    animation: fadeInSlide 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    max-width: 400px;
+    animation: fadeIn 0.3s ease;
 }
 
-@keyframes fadeInSlide {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .login-form h1 {
-    font-size: 2.5rem;
-    margin-bottom: 0.75rem;
-    color: var(--text);
-    font-weight: 800;
-    letter-spacing: -0.05em;
+    font-size: 24px;
+    margin-bottom: 8px;
+    color: var(--N800);
+    font-weight: 500;
     text-align: center;
 }
 
 .login-form p {
-    color: var(--text-subtle);
-    margin-bottom: 3rem;
+    color: var(--N200);
+    margin-bottom: 32px;
     text-align: center;
-    font-size: 1.1rem;
+    font-size: 14px;
 }
 
 .form-group {
-    margin-bottom: 2rem;
+    margin-bottom: 16px;
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 0.75rem;
-    font-weight: 700;
-    font-size: 0.8rem;
-    color: var(--text-subtle);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--N200);
+    text-transform: none;
+    letter-spacing: normal;
 }
 
 .form-group input {
     width: 100%;
-    padding: 1rem 1.25rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    font-size: 1rem;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    background: var(--surface-raised);
+    padding: 8px 10px;
+    border: 2px solid var(--N40);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    transition: border-color 0.1s ease;
+    background: var(--N10);
+    color: var(--N800);
 }
 
 .form-group input:focus {
     outline: none;
     border-color: var(--primary);
-    background: white;
-    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
-    transform: translateY(-2px);
+    background: var(--N0);
+    box-shadow: none;
+    transform: none;
 }
 
 .login-btn {
     width: 100%;
-    padding: 1rem;
-    background: var(--grad-primary);
-    color: white;
-    font-weight: 700;
-    font-size: 1.1rem;
-    border-radius: var(--radius-md);
-    margin-top: 1rem;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
+    padding: 8px;
+    background: var(--primary);
+    color: var(--N0);
+    font-weight: 500;
+    font-size: 14px;
+    border-radius: var(--radius-sm);
+    margin-top: 8px;
+    transition: background 0.1s ease;
+    box-shadow: none;
+    height: 40px;
 }
 
 .login-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.4);
+    background: var(--primary-hover);
+    transform: none;
+    box-shadow: none;
 }
 
 .login-btn:active {
-    transform: translateY(0);
+    background: #003884;
+    transform: none;
+}
+
+.error-message {
+    background: var(--error-bg);
+    color: var(--error);
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    margin-bottom: 16px;
+    font-weight: 500;
 }
 
 .auth-footer {
-    margin-top: 2.5rem;
+    margin-top: 24px;
     text-align: center;
-    font-size: 1rem;
-    color: var(--text-subtle);
+    font-size: 14px;
+    color: var(--N200);
 }
 
 .auth-footer a {
     color: var(--primary);
-    font-weight: 700;
-    margin-left: 0.5rem;
+    font-weight: 500;
+    margin-left: 4px;
 }
 
 .auth-footer a:hover {

@@ -1,58 +1,58 @@
+/* Jira-style App Layout */
 .app-layout {
     display: flex;
     min-height: 100vh;
-    background: #FAFBFC;
+    background: var(--N0);
     position: relative;
 }
 
 .sidebar-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(9, 30, 66, 0.54);
     z-index: 1999;
-    backdrop-filter: blur(2px);
 }
 
-/* Fixed top-right notification bell */
+/* Top-right notification bar */
 .topbar-notifications {
     position: fixed;
-    top: 0.85rem;
-    right: 1.25rem;
+    top: 8px;
+    right: 16px;
     z-index: 1050;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 4px;
 }
 
+/* Hamburger */
 .hamburger-btn {
     position: fixed;
-    top: 1rem;
-    left: 1rem;
-    width: 40px;
-    height: 40px;
-    background: white;
-    border: 1px solid #DFE1E6;
-    border-radius: 6px;
+    top: 8px;
+    left: 8px;
+    width: 36px;
+    height: 36px;
+    background: var(--N0);
+    border: none;
+    border-radius: var(--radius-sm);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #42526E;
+    color: var(--N500);
     cursor: pointer;
     z-index: 1000;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    transition: all 0.2s ease;
+    transition: background 0.1s ease;
 }
 
 .hamburger-btn:hover {
-    background: #F4F5F7;
-    color: #0052CC;
-    border-color: #0052CC;
+    background: var(--N20);
+    color: var(--primary);
 }
 
+/* Main content area */
 .main-content {
     flex: 1;
     min-width: 0;
-    background-color: var(--background);
+    background-color: var(--N0);
     overflow-y: auto;
 }
 

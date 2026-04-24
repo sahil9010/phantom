@@ -1,11 +1,11 @@
+/* ===== Jira Issue Detail Drawer ===== */
 .drawer-overlay {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(2, 6, 23, 0.3);
-    backdrop-filter: blur(8px);
+    background: rgba(9, 30, 66, 0.54);
     z-index: 2000;
     display: flex;
     justify-content: flex-end;
@@ -13,135 +13,162 @@
 
 .drawer-content {
     width: 60%;
-    min-width: 600px;
-    background: var(--surface);
+    min-width: 580px;
+    background: var(--N0);
     height: 100%;
-    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.05);
+    box-shadow: -4px 0 24px rgba(9, 30, 66, 0.1);
     display: flex;
     flex-direction: column;
-    animation: drawer-slide-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: drawer-slide-in 0.2s ease;
 }
 
 @keyframes drawer-slide-in {
-    from {
-        transform: translateX(100%);
-    }
-
-    to {
-        transform: translateX(0);
-    }
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
 }
 
+/* Header */
 .drawer-header {
-    padding: 1.5rem 2rem;
-    border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--N30);
     display: flex;
     justify-content: space-between;
     align-items: center;
+    background: var(--N0);
 }
 
 .issue-meta-header {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 8px;
 }
 
+.issue-meta-header .issue-key {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--primary);
+    cursor: pointer;
+}
+
+.issue-meta-header .issue-key:hover {
+    text-decoration: underline;
+}
+
+.close-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--N200);
+    transition: background 0.1s ease;
+}
+
+.close-btn:hover {
+    background: var(--N20);
+    color: var(--N800);
+}
+
+/* Body Grid */
 .drawer-body {
     flex: 1;
     overflow-y: auto;
     display: grid;
-    grid-template-columns: 1fr 300px;
+    grid-template-columns: 1fr 240px;
     padding: 0;
 }
 
 .drawer-main {
-    padding: 3rem;
-    border-right: 1px solid var(--border);
+    padding: 24px 32px;
+    border-right: 1px solid var(--N30);
 }
 
 .drawer-side {
-    padding: 2rem;
-    background: var(--background);
+    padding: 24px 16px;
+    background: var(--N10);
 }
 
+/* Title */
 .issue-title-field {
-    font-size: 2rem;
-    font-weight: 800;
-    color: var(--text);
-    margin-bottom: 2rem;
-    border: 1px solid transparent;
-    padding: 0.5rem;
-    border-radius: var(--radius-md);
-    transition: all 0.2s ease;
-    line-height: 1.2;
-    letter-spacing: -0.02em;
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--N800);
+    margin-bottom: 16px;
+    border: 2px solid transparent;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    transition: border-color 0.1s ease, background 0.1s ease;
+    line-height: 1.3;
 }
 
 .issue-title-field:hover {
-    background: var(--surface-raised);
+    background: var(--N20);
 }
 
 .issue-title-field:focus {
     outline: none;
     border-color: var(--primary);
-    background: white;
-    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    background: var(--N0);
 }
 
+/* Section Label */
 .section-label {
-    font-size: 0.75rem;
-    font-weight: 800;
-    color: var(--text-subtle);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--N200);
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: 1rem;
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
     display: block;
 }
 
+/* Description */
 .description-area {
     width: 100%;
-    min-height: 200px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    padding: 1rem;
-    font-size: 1rem;
-    color: var(--text);
-    background: var(--surface-raised);
-    transition: all 0.2s ease;
-    resize: none;
-    line-height: 1.6;
+    min-height: 120px;
+    border: 2px solid var(--N40);
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+    font-size: 14px;
+    color: var(--N800);
+    background: var(--N10);
+    transition: border-color 0.1s ease;
+    resize: vertical;
+    line-height: 1.5;
+    font-family: inherit;
 }
 
 .description-area:focus {
     outline: none;
     border-color: var(--primary);
-    background: white;
-    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    background: var(--N0);
 }
 
-/* Activity Feed Timeline */
+/* Activity Feed */
 .activity-feed {
-    margin-top: 3rem;
-    padding-top: 2rem;
-    border-top: 1px solid var(--border);
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--N30);
 }
 
+/* Timeline */
 .timeline {
     position: relative;
-    padding-left: 2rem;
+    padding-left: 24px;
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 16px;
 }
 
 .timeline::before {
     content: '';
     position: absolute;
-    left: 4px;
+    left: 3px;
     top: 0;
     bottom: 0;
     width: 2px;
-    background: var(--border);
+    background: var(--N30);
 }
 
 .timeline-item {
@@ -150,13 +177,13 @@
 
 .timeline-dot {
     position: absolute;
-    left: -28px;
+    left: -24px;
     top: 4px;
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
-    background: var(--border);
-    border: 2px solid white;
+    background: var(--N40);
+    border: 2px solid var(--N0);
     z-index: 10;
 }
 
@@ -169,35 +196,46 @@
 }
 
 .timeline-content {
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    padding: 1rem;
-    box-shadow: var(--shadow-sm);
+    background: var(--N0);
+    border: 1px solid var(--N30);
+    border-radius: 3px;
+    padding: 10px 12px;
 }
 
 .timeline-header {
     display: flex;
     justify-content: space-between;
-    font-size: 0.8rem;
-    margin-bottom: 0.5rem;
+    font-size: 12px;
+    margin-bottom: 4px;
 }
 
 .timeline-author {
-    font-weight: 700;
-    color: var(--text);
+    font-weight: 600;
+    color: var(--N800);
 }
 
 .timeline-date {
-    color: var(--text-subtle);
+    color: var(--N200);
 }
 
+.timeline-body {
+    font-size: 14px;
+    color: var(--N500);
+    line-height: 1.4;
+}
+
+/* Responsive */
 @media (max-width: 1024px) {
     .drawer-content {
         width: 100%;
+        min-width: 0;
     }
 
     .drawer-body {
         grid-template-columns: 1fr;
+    }
+
+    .drawer-main {
+        border-right: none;
     }
 }

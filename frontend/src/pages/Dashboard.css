@@ -1,109 +1,109 @@
+/* ===== Jira-Style Dashboard ===== */
 .dashboard {
     width: 100%;
-    max-width: 1400px;
+    max-width: 1200px;
     margin: 0 auto;
+    padding: 32px 40px;
 }
 
 .page-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-end;
-    margin-bottom: 3rem;
+    align-items: center;
+    margin-bottom: 32px;
 }
 
 .header-text h1 {
-    font-size: 2.5rem;
-    font-weight: 800;
-    color: var(--text);
-    letter-spacing: -0.05em;
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--N800);
     line-height: 1;
-    margin-bottom: 0.5rem;
+    margin-bottom: 4px;
 }
 
 .subtitle {
-    font-size: 1.1rem;
-    color: var(--text-subtle);
-    font-weight: 500;
+    font-size: 14px;
+    color: var(--N200);
+    font-weight: 400;
 }
 
-/* Stats Overview Cards */
+/* Stats Overview */
 .stats-overview {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-    margin-bottom: 4rem;
+    gap: 16px;
+    margin-bottom: 32px;
 }
 
 .stat-card {
-    background: white;
-    padding: 2rem;
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow-sm);
-    transition: all 0.3s ease;
+    background: var(--N0);
+    padding: 20px;
+    border-radius: 3px;
+    border: 1px solid var(--N30);
+    transition: background 0.1s ease;
 }
 
 .stat-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-md);
-    border-color: var(--primary);
+    background: var(--N10);
+    transform: none;
+    box-shadow: none;
 }
 
 .stat-card.primary {
-    background: var(--text);
-    color: white;
+    background: var(--primary);
+    color: var(--N0);
     border: none;
 }
 
 .stat-card label {
-    font-size: 0.75rem;
-    font-weight: 800;
+    font-size: 11px;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.04em;
     opacity: 0.6;
     display: block;
-    margin-bottom: 1rem;
+    margin-bottom: 8px;
 }
 
 .stat-card .value {
-    font-size: 2.5rem;
-    font-weight: 800;
-    margin-bottom: 0.5rem;
-    letter-spacing: -0.02em;
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    letter-spacing: -0.01em;
 }
 
 .stat-card .trend {
-    font-size: 0.85rem;
-    font-weight: 600;
-    opacity: 0.8;
+    font-size: 12px;
+    font-weight: 500;
+    opacity: 0.7;
 }
 
 .trend.positive {
     color: var(--success);
 }
 
-/* Project Grid Redesign */
+/* Project Grid */
 .project-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
 }
 
 .project-card {
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 2rem;
+    background: var(--N0);
+    border: 1px solid var(--N30);
+    border-radius: 3px;
+    padding: 20px;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: background 0.1s ease, box-shadow 0.1s ease;
     position: relative;
-    overflow: hidden;
 }
 
 .project-card:hover {
-    border-color: var(--primary);
-    box-shadow: var(--shadow-lg);
-    transform: scale(1.02);
+    background: var(--N10);
+    box-shadow: var(--shadow-md);
+    border-color: var(--N50);
+    transform: none;
 }
 
 .project-card::after {
@@ -112,10 +112,10 @@
     bottom: 0;
     left: 0;
     right: 0;
-    height: 4px;
-    background: var(--grad-primary);
+    height: 3px;
+    background: var(--primary);
     transform: scaleX(0);
-    transition: transform 0.3s ease;
+    transition: transform 0.2s ease;
     transform-origin: left;
 }
 
@@ -126,41 +126,51 @@
 .project-top {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 2rem;
+    margin-bottom: 16px;
 }
 
 .project-icon {
-    width: 48px;
-    height: 48px;
-    background: var(--surface-raised);
-    border-radius: 12px;
+    width: 40px;
+    height: 40px;
+    background: var(--primary-light);
+    border-radius: 3px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: var(--primary);
-    transition: all 0.3s ease;
+    transition: background 0.1s ease;
 }
 
 .project-card:hover .project-icon {
     background: var(--primary);
-    color: white;
+    color: var(--N0);
 }
 
 .project-info h3 {
-    font-size: 1.4rem;
-    font-weight: 800;
-    color: var(--text);
-    margin-bottom: 0.5rem;
-    letter-spacing: -0.02em;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--N800);
+    margin-bottom: 4px;
 }
 
 .project-info p {
-    color: var(--text-subtle);
-    font-size: 0.95rem;
-    font-weight: 500;
+    color: var(--N200);
+    font-size: 14px;
+    font-weight: 400;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px;
+    color: var(--N200);
+    font-size: 14px;
 }
 
 @media (max-width: 1024px) {
+    .dashboard {
+        padding: 24px 16px;
+    }
+
     .stats-overview {
         grid-template-columns: 1fr;
     }

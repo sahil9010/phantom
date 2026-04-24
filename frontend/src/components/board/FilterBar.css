@@ -1,71 +1,75 @@
+/* ===== Jira Filter Bar ===== */
 .filter-bar {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 0.5rem 0;
-    margin-bottom: 1rem;
+    gap: 8px;
+    padding: 8px 40px 12px;
     flex-wrap: wrap;
-    border-bottom: 1px solid var(--border);
+    border-bottom: none;
 }
 
 .filter-group {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 4px;
 }
 
 .filter-group label {
-    font-size: 0.65rem;
-    font-weight: 600;
-    color: var(--text-subtle);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--N200);
+    text-transform: none;
+    letter-spacing: normal;
 }
 
 .filter-group select {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 0.35rem 0.75rem;
+    background: var(--N0);
+    border: 2px solid var(--N40);
+    color: var(--N800);
+    padding: 4px 8px;
     border-radius: var(--radius-sm);
-    font-size: 0.8rem;
-    font-weight: 600;
+    font-size: 14px;
+    font-weight: 400;
     outline: none;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: border-color 0.1s ease;
     min-width: 120px;
+    height: 32px;
 }
 
 .filter-group select:hover {
+    background: var(--N10);
+}
+
+.filter-group select:focus {
     border-color: var(--primary);
 }
 
 .clear-filters-btn {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
-    background: var(--surface-raised);
-    border: 1px solid var(--border);
-    color: var(--text-subtle);
-    font-size: 0.75rem;
-    font-weight: 700;
+    gap: 4px;
+    background: transparent;
+    border: none;
+    color: var(--N200);
+    font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
-    padding: 0.35rem 0.75rem;
+    padding: 4px 8px;
     border-radius: var(--radius-sm);
-    transition: all 0.2s ease;
+    transition: all 0.1s ease;
     margin-left: auto;
 }
 
 .clear-filters-btn:hover {
-    background: white;
+    background: var(--N20);
     color: var(--error);
-    border-color: var(--error);
-    box-shadow: var(--shadow-sm);
 }
 
 @media (max-width: 768px) {
     .filter-bar {
-        gap: 1rem;
+        padding: 8px 16px;
+        gap: 8px;
     }
 
     .clear-filters-btn {
