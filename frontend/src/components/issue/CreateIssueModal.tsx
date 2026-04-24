@@ -14,7 +14,6 @@ interface CreateIssueModalProps {
 const CreateIssueModal: React.FC<CreateIssueModalProps> = ({ projectId, status, members, sprints, onClose, onCreated }) => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const [imageUrl, setImageUrl] = useState('');
     const [priority, setPriority] = useState('medium');
     const [assigneeId, setAssigneeId] = useState('');
     // Default to active sprint if available
@@ -37,7 +36,7 @@ const CreateIssueModal: React.FC<CreateIssueModalProps> = ({ projectId, status, 
                 priority,
                 assigneeId: assigneeId || null,
                 sprintId,
-                attachments: JSON.stringify(imageUrl ? [imageUrl] : [])
+                attachments: '[]'
             });
             onCreated(data);
             onClose();
@@ -91,26 +90,6 @@ const CreateIssueModal: React.FC<CreateIssueModalProps> = ({ projectId, status, 
                         </div>
 
                         <div className="form-side">
-                            <div className="field-group">
-                                <label><ImageIcon size={14} /> Image Reference</label>
-                                <div className="image-preview-box">
-                                    {imageUrl ? (
-                                        <img src={imageUrl} alt="preview" />
-                                    ) : (
-                                        <div className="placeholder-icon">
-                                            <ImageIcon size={24} />
-                                        </div>
-                                    )}
-                                </div>
-                                <input
-                                    type="text"
-                                    className="premium-input-sm"
-                                    value={imageUrl}
-                                    onChange={(e) => setImageUrl(e.target.value)}
-                                    placeholder="Paste image URL..."
-                                />
-                            </div>
-
                             <div className="field-group">
                                 <label><Flag size={14} /> Priority</label>
                                 <div className="priority-selector">

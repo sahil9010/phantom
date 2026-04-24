@@ -115,13 +115,43 @@ const ProfilePage: React.FC = () => {
                                 </div>
                                 <div className="field-group">
                                     <label><Camera size={14} /> AVATAR URL</label>
-                                    <input
-                                        type="text"
-                                        className="premium-input"
-                                        value={avatarUrl}
-                                        onChange={(e) => setAvatarUrl(e.target.value)}
-                                        placeholder="Image URL"
-                                    />
+                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                        <input
+                                            type="text"
+                                            className="premium-input"
+                                            value={avatarUrl}
+                                            onChange={(e) => setAvatarUrl(e.target.value)}
+                                            placeholder="Image URL"
+                                            style={{ flex: 1 }}
+                                        />
+                                        <button
+                                            type="button"
+                                            className="btn-secondary"
+                                            onClick={() => {
+                                                // @ts-ignore
+                                                const widget = window.cloudinary.createUploadWidget(
+                                                    {
+                                                        cloudName: 'dchdqs7i6',
+                                                        uploadPreset: 'lmijz9fe',
+                                                        sources: ['local', 'url', 'camera'],
+                                                        multiple: false,
+                                                        cropping: true,
+                                                        croppingAspectRatio: 1,
+                                                        showSkipCropButton: false
+                                                    },
+                                                    (error: any, result: any) => {
+                                                        if (!error && result && result.event === "success") {
+                                                            setAvatarUrl(result.info.secure_url);
+                                                        }
+                                                    }
+                                                );
+                                                widget.open();
+                                            }}
+                                            style={{ padding: '0 1rem', whiteSpace: 'nowrap' }}
+                                        >
+                                            Upload
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 

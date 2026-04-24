@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Send } from 'lucide-react';
+import { X, Send, Image as ImageIcon } from 'lucide-react';
 import api from '../../services/api';
 import './IssueDetails.css';
 import socket from '../../services/socket';
@@ -29,6 +29,19 @@ const IssueDetails: React.FC<IssueDetailsProps> = ({ issueId, members, onClose, 
     const [mentionIndex, setMentionIndex] = useState(0);
 
     const { user } = useAuthStore();
+
+    // Safe attachments parsing
+    const attachments = React.useMemo(() => {
+        try {
+            if (!issue?.attachments) return [];
+            if (Array.isArray(issue.attachments)) return issue.attachments;
+            const parsed = JSON.parse(issue.attachments);
+            return Array.isArray(parsed) ? parsed : [];
+        } catch (e) {
+            console.error('Failed to parse attachments', e);
+            return [];
+        }
+    }, [issue?.attachments]);
 
     // Build comment tree from flat list
     const rootComments = React.useMemo(() => {
@@ -201,11 +214,94 @@ const IssueDetails: React.FC<IssueDetailsProps> = ({ issueId, members, onClose, 
         }
     };
 
+    const [isDragging, setIsDragging] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
+
+    const uploadFile = async (file: File) => {
+        setIsUploading(true);
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', 'lmijz9fe');
+        try {
+            const res = await fetch('https://api.cloudinary.com/v1_1/dchdqs7i6/image/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            if (data.secure_url) {
+                // Get current attachments safely
+                const currentAttachments = attachments;
+                const updatedAttachments = [...currentAttachments, data.secure_url];
+                
+                // Update backend and sync local state with response
+                const { data: updatedIssue } = await api.patch(`/issues/${issueId}`, { 
+                    attachments: JSON.stringify(updatedAttachments) 
+                });
+                
+                setIssue(updatedIssue);
+                onUpdate(); // Refresh Kanban board
+            }
+        } catch (err) {
+            console.error('Failed to upload', err);
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (!issue) return;
+
+        const handleGlobalPaste = (e: ClipboardEvent) => {
+            const items = e.clipboardData?.items;
+            if (!items) return;
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') !== -1) {
+                    const file = items[i].getAsFile();
+                    if (file) uploadFile(file);
+                    break;
+                }
+            }
+        };
+
+        document.addEventListener('paste', handleGlobalPaste);
+        return () => {
+            document.removeEventListener('paste', handleGlobalPaste);
+        };
+    }, [issue, issueId]);
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(false);
+        const file = e.dataTransfer.files?.[0];
+        if (file && file.type.startsWith('image/')) {
+            uploadFile(file);
+        }
+    };
+
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = () => {
+        setIsDragging(false);
+    };
+
     if (!issue) return null;
 
     return (
-        <div className="drawer-overlay" onClick={onClose}>
-            <div className="drawer-content" onClick={e => e.stopPropagation()}>
+        <div 
+            className="drawer-overlay" 
+            onClick={onClose} 
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+        >
+            <div 
+                className="drawer-content" 
+                onClick={e => e.stopPropagation()}
+                style={{ border: isDragging ? '2px dashed var(--primary)' : 'none', background: isDragging ? 'var(--primary-light)' : 'var(--N0)' }}
+            >
                 <header className="drawer-header">
                     <div className="issue-meta-header">
                         <span className="issue-key">ISSUE-{issue.id.slice(0, 4).toUpperCase()}</span>
@@ -233,6 +329,26 @@ const IssueDetails: React.FC<IssueDetailsProps> = ({ issueId, members, onClose, 
                                 onBlur={(e) => handleUpdate('description', e.target.value)}
                                 placeholder="What's this task about?"
                             />
+                        </div>
+
+                        <div className="section" style={{ marginTop: '2rem' }}>
+                            <label className="section-label">Attachments</label>
+                            <div className="attachments-list" style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+                                {attachments.map((url: string, index: number) => (
+                                    <a key={index} href={url} target="_blank" rel="noopener noreferrer">
+                                        <img src={url} alt={`attachment-${index}`} style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--border)' }} />
+                                    </a>
+                                ))}
+                                {isUploading && (
+                                    <div style={{ width: '80px', height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--N20)', borderRadius: '4px', border: '1px solid var(--border)' }}>
+                                        <span style={{ fontSize: '12px', color: 'var(--N200)' }}>Uploading...</span>
+                                    </div>
+                                )}
+                            </div>
+                            <div style={{ padding: '1.5rem', textAlign: 'center', border: '2px dashed var(--N40)', borderRadius: '4px', color: 'var(--N200)', background: 'var(--N10)' }}>
+                                <ImageIcon size={24} style={{ margin: '0 auto 8px auto', opacity: 0.6 }} />
+                                <div style={{ fontSize: '12px' }}>Drag & drop images here or paste from clipboard to attach.</div>
+                            </div>
                         </div>
 
                         <div className="activity-feed">
